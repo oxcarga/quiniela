@@ -1,7 +1,7 @@
 # Mundial 2026 — Quiniela App: Project Plan
 
 > Last updated: June 2026  
-> Status: Planning / Scaffolding
+> Status: In Progress — foundation + AuthContext done, login flow next
 
 ---
 
@@ -365,25 +365,117 @@ firebase deploy --only firestore
 
 ---
 
-## 12. Build Phases
+## 12. Implementation Tracker
 
-### Phase 1 — MVP (pre-tournament launch)
-- [ ] Firebase project setup (Auth, Firestore, rules)
-- [ ] Next.js project scaffolding with Tailwind + shadcn
-- [ ] Auth flow: magic link, onboarding
-- [ ] Seed match data (all group stage fixtures)
-- [ ] Match list page
-- [ ] Prediction form (with lock logic)
-- [ ] Basic leaderboard (manual score updates for now)
-- [ ] Admin panel (result entry)
-- [ ] Cloud Function: auto-scoring on result write
-- [ ] Cloud Function: match status lock at kickoff
+Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
+
+---
+
+### 12.1 Foundation
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| F-1 | Firebase project setup (console: Auth + Firestore enabled) | [x] | Enable Email Link provider, add authorized domains |
+| F-2 | Next.js + Tailwind + shadcn scaffolding | [x] | All dirs and stub files created |
+| F-3 | `lib/firebase.ts` — Firebase init | [x] | Auth + Firestore exported; emulator wiring on `NODE_ENV=development` |
+| F-4 | `.env.local` filled in with real Firebase values | [x] | Copy from `.env.local.example` |
+| F-5 | Firestore security rules deployed | [x] | See §4.2 |
+| F-6 | Firebase emulators running locally | [x] | `firebase emulators:start` |
+
+---
+
+### 12.2 Auth Flow
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| A-1 | `context/AuthContext.tsx` — full implementation | [x] | `onAuthStateChanged`, send/confirm link, user state, setDisplayName, signOut |
+| A-2 | `app/login/page.tsx` + `components/auth/LoginForm.tsx` | [x] | Email input → `sendSignInLinkToEmail`; loading/success/error states |
+| A-3 | `app/auth/confirm/page.tsx` — magic link handler | [x] | `signInWithEmailLink`; device-mismatch prompt; redirects to /onboarding or / |
+| A-4 | `app/onboarding/page.tsx` + `OnboardingForm.tsx` | [x] | Nickname input (max 24), `setDisplayName` → redirects to / |
+| A-5 | `proxy.ts` — route protection (replaces deprecated `middleware.ts`) | [x] | Optimistic cookie check; redirects unauthenticated to `/login` |
+| A-6 | `components/layout/ProtectedRoute.tsx` | [x] | Redirects unauthed → /login, no displayName → /onboarding; shows loader while Firebase resolves |
+| A-7 | User document created in Firestore on first login | [x] | Handled inside `confirmMagicLink` in `AuthContext.tsx` |
+
+---
+
+### 12.3 Core Data Layer
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| D-1 | `lib/firestore.ts` — helper functions | [~] | Empty; getMatch, getMatches, getPrediction, setPrediction, getLeaderboard |
+| D-2 | `lib/scoring.ts` — scoring logic | [~] | Empty; `calculatePoints(prediction, result): number` |
+| D-3 | `hooks/useMatches.ts` — TanStack Query | [~] | Scaffold exists; implement |
+| D-4 | `hooks/usePredictions.ts` — user predictions | [~] | Scaffold exists; implement |
+| D-5 | `hooks/useLeaderboard.ts` — real-time listener | [~] | Scaffold exists; implement |
+| D-6 | `store/useAppStore.ts` — Zustand store | [~] | Scaffold exists; define slices |
+| D-7 | Seed Firestore with group stage fixtures | [ ] | All 48 group stage matches, `status: "upcoming"` |
+
+---
+
+### 12.4 Match Pages
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| M-1 | `components/matches/MatchCard.tsx` | [~] | Scaffold; teams, flags, kickoff (local TZ), status badge |
+| M-2 | `components/matches/MatchList.tsx` | [~] | Scaffold; grouped by phase, filterable |
+| M-3 | `app/matches/page.tsx` | [~] | Stub; wire up MatchList + useMatches |
+| M-4 | `components/matches/PredictionForm.tsx` | [~] | Scaffold; 2 number inputs, auto-disable at kickoff, Zod validation |
+| M-5 | `app/matches/[matchId]/page.tsx` | [~] | Stub; prediction form if open, result + user prediction if locked |
+
+---
+
+### 12.5 Leaderboard & Home
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| L-1 | `components/leaderboard/LeaderboardRow.tsx` | [~] | Scaffold; position, avatar, name, score, highlight own row |
+| L-2 | `components/leaderboard/Leaderboard.tsx` | [~] | Scaffold; real-time listener via `useLeaderboard` |
+| L-3 | `app/page.tsx` — home / leaderboard | [~] | Still default Next.js template; replace with Leaderboard |
+
+---
+
+### 12.6 Profile Page
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| P-1 | `app/profile/page.tsx` — prediction history + score breakdown | [~] | Stub |
+
+---
+
+### 12.7 Admin Panel
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| AD-1 | `app/admin/page.tsx` — result entry form | [~] | Stub; select match, enter goals, submit → write to Firestore |
+| AD-2 | Set `admin: true` custom claim on admin user(s) | [ ] | Via Firebase Admin SDK / console |
+
+---
+
+### 12.8 Cloud Functions
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [~] | File exists, empty |
+| CF-2 | `functions/src/updateMatchStatus.ts` — scheduled lock at kickoff | [~] | File exists, empty |
+| CF-3 | `functions/src/updateLeaderboard.ts` — rebuild leaderboard doc | [~] | File exists, empty |
+| CF-4 | Deploy Cloud Functions to Firebase | [ ] | `firebase deploy --only functions` |
+
+---
+
+### 12.9 Layout & Navigation
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| N-1 | `components/layout/Navbar.tsx` | [~] | Scaffold exists; links, user avatar, sign-out |
+| N-2 | `app/layout.tsx` — root layout with AuthProvider | [x] | AuthProvider wired; metadata updated |
+
+---
 
 ### Phase 2 — During tournament
-- [ ] Real-time leaderboard with animated rank changes
-- [ ] Profile page (prediction history, score breakdown per match)
+- [ ] Animated rank changes after scoring
+- [ ] Profile page — full prediction history + per-match score breakdown
 - [ ] Knockout stage match seeding (auto-populate as teams advance)
-- [ ] Push notifications (match lock reminders, score updates)
+- [ ] Push notifications — 30 min before lock, score update after match
 - [ ] Mobile-responsive polish
 
 ### Phase 3 — Nice to have

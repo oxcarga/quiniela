@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Matches: public read, admin-only write
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Users: authenticated read, own write only
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Predictions: authenticated read, own write only before kickoff
+    match /predictions/{userId}/matches/{matchId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.time < get(/databases/$(database)/documents/matches/$(matchId)).data.kickoffAt;
+    }
+
+    // Leaderboard: public read, written only by Cloud Functions (admin SDK)
+    match /leaderboard/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
