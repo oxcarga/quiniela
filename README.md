@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quiniela Mundial 2026
 
-## Getting Started
+A web app for predicting FIFA World Cup 2026 match results and competing on a shared leaderboard.
 
-First, run the development server:
+## Local Development
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Set up environment variables
+
+```bash
+cp .env.local.example .env.local
+# Fill in your Firebase project values
+```
+
+### 3. Start Firebase emulators
+
+```bash
+npm run emulators
+# Requires Java — install with: brew install --cask temurin
+```
+
+Emulator UI: http://localhost:4000
+
+### 4. Start the Next.js dev server (separate terminal)
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Testing magic link sign-in locally
 
-## Learn More
+The Firebase Auth emulator does **not** send real emails. Instead it stores the sign-in link internally. After submitting the login form, retrieve the link from:
 
-To learn more about Next.js, take a look at the following resources:
+```
+http://localhost:9099/emulator/v1/projects/quiniela-ee895/oobCodes
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The response contains an `oobLink` field — open that URL in your browser to complete sign-in. The user will then appear in the Auth emulator UI at http://localhost:4000/auth.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Example response:
 
-## Deploy on Vercel
+```json
+{
+  "oobCodes": [
+    {
+      "email": "test@example.com",
+      "requestType": "EMAIL_SIGNIN",
+      "oobLink": "http://127.0.0.1:9099/emulator/action?mode=signIn&oobCode=...&continueUrl=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fconfirm"
+    }
+  ]
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project structure
+
+See [`plan.md`](./plan.md) for the full architecture, data model, and implementation tracker.
