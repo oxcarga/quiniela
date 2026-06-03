@@ -432,9 +432,9 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| L-1 | `components/leaderboard/LeaderboardRow.tsx` | [~] | Scaffold; position, avatar, name, score, highlight own row |
-| L-2 | `components/leaderboard/Leaderboard.tsx` | [~] | Scaffold; real-time listener via `useLeaderboard` |
-| L-3 | `app/page.tsx` — home / leaderboard | [~] | Still default Next.js template; replace with Leaderboard |
+| L-1 | `components/leaderboard/LeaderboardRow.tsx` | [x] | Position (medal for top 3), avatar initials, name, score, highlights own row |
+| L-2 | `components/leaderboard/Leaderboard.tsx` | [x] | Real-time via `useLeaderboard`; loading/error/empty states |
+| L-3 | `app/page.tsx` — home / leaderboard | [x] | ProtectedRoute + Leaderboard |
 
 ---
 
