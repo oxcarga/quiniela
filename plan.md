@@ -442,7 +442,7 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| P-1 | `app/profile/page.tsx` — prediction history + score breakdown | [~] | Stub |
+| P-1 | `app/profile/page.tsx` — prediction history + score breakdown | [x] | User header, stats bar (total pts / predictions / scored), full prediction list sorted by kickoff with result + points badge |
 
 ---
 

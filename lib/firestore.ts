@@ -75,6 +75,11 @@ export async function getPrediction(
   return snap.data() as Prediction;
 }
 
+export async function getUserPredictions(userId: string): Promise<Prediction[]> {
+  const snap = await getDocs(collection(db, "predictions", userId, "matches"));
+  return snap.docs.map((d) => d.data() as Prediction);
+}
+
 export async function setPrediction(
   userId: string,
   matchId: string,
