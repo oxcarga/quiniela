@@ -420,11 +420,11 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| M-1 | `components/matches/MatchCard.tsx` | [~] | Scaffold; teams, flags, kickoff (local TZ), status badge |
-| M-2 | `components/matches/MatchList.tsx` | [~] | Scaffold; grouped by phase, filterable |
-| M-3 | `app/matches/page.tsx` | [~] | Stub; wire up MatchList + useMatches |
-| M-4 | `components/matches/PredictionForm.tsx` | [~] | Scaffold; 2 number inputs, auto-disable at kickoff, Zod validation |
-| M-5 | `app/matches/[matchId]/page.tsx` | [~] | Stub; prediction form if open, result + user prediction if locked |
+| M-1 | `components/matches/MatchCard.tsx` | [x] | Teams, flags, kickoff (local TZ), status badge, links to detail |
+| M-2 | `components/matches/MatchList.tsx` | [x] | Grouped by phase, phase filter pills, uses useMatches + useAppStore |
+| M-3 | `app/matches/page.tsx` | [x] | ProtectedRoute + MatchList |
+| M-4 | `components/matches/PredictionForm.tsx` | [x] | 2 number inputs, Zod validation, auto-disable when locked/finished, pre-fills existing prediction |
+| M-5 | `app/matches/[matchId]/page.tsx` | [x] | Async params; MatchDetail client component: form if upcoming, result + points if finished |
 
 ---
 
@@ -490,7 +490,17 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 ---
 
-## 13. Key Decisions & Notes
+## 13. Improvements
+
+| # | Improvement | Notes |
+|---|---|---|
+| I-1 | Inline predictions on `/matches` | Allow users to submit/edit their prediction directly from the match list card, without navigating to `/matches/:matchId`. The detail page can remain for the full result + points view. |
+| I-2 | Show prediction + result inline on `/matches` | Alongside each match card, display the user's predicted score. If the match is finished, show the official result and points earned side by side with the prediction. |
+| I-3 | Show FIFA team rankings on `/matches` | Scrape current group-stage rankings (position, played, won, drawn, lost, GF, GA, GD, points) from the FIFA website and store them in `data/fifa_world_cup_2026_group_fixtures.json`. Display each team's current standing next to their name in the match card and detail page. Needs a scraping script (e.g. `scripts/scrape-rankings.ts`) and a periodic refresh strategy. |
+
+---
+
+## 14. Key Decisions & Notes
 
 - **Scoring is server-side only.** Cloud Functions use the Firebase Admin SDK. Clients never write `pointsEarned` — Firestore rules block it.
 - **Leaderboard is denormalized.** A single document is cheaper to read than aggregating across all users. Rebuilt after every match is scored.
