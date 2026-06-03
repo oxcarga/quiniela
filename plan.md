@@ -314,6 +314,10 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 
 # App URL (for magic link redirects)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# football-data.org API key (used by Cloud Function CF-2 to fetch match results)
+# Get a free key at https://www.football-data.org/client/register
+FOOTBALL_DATA_API_KEY=
 ```
 
 ---
@@ -402,13 +406,13 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| D-1 | `lib/firestore.ts` — helper functions | [~] | Empty; getMatch, getMatches, getPrediction, setPrediction, getLeaderboard |
-| D-2 | `lib/scoring.ts` — scoring logic | [~] | Empty; `calculatePoints(prediction, result): number` |
-| D-3 | `hooks/useMatches.ts` — TanStack Query | [~] | Scaffold exists; implement |
-| D-4 | `hooks/usePredictions.ts` — user predictions | [~] | Scaffold exists; implement |
-| D-5 | `hooks/useLeaderboard.ts` — real-time listener | [~] | Scaffold exists; implement |
-| D-6 | `store/useAppStore.ts` — Zustand store | [~] | Scaffold exists; define slices |
-| D-7 | Seed Firestore with group stage fixtures | [ ] | All 48 group stage matches, `status: "upcoming"` |
+| D-1 | `lib/firestore.ts` — helper functions | [x] | getMatch, getMatches, getPrediction, setPrediction, getLeaderboard; types Match, Prediction, Leaderboard |
+| D-2 | `lib/scoring.ts` — scoring logic | [x] | `calculatePoints(prediction, result): number` |
+| D-3 | `hooks/useMatches.ts` — TanStack Query | [x] | `useMatches(phase?)` + `useMatch(matchId)` |
+| D-4 | `hooks/usePredictions.ts` — user predictions | [x] | `usePrediction(userId, matchId)` + `useSetPrediction(userId, matchId)` |
+| D-5 | `hooks/useLeaderboard.ts` — real-time listener | [x] | `useLeaderboard()` — `onSnapshot` on `/leaderboard/current`; returns `{ data, loading, error }` |
+| D-6 | `store/useAppStore.ts` — Zustand store | [x] | `matchPhaseFilter` + `selectedMatchId` slices |
+| D-7 | Seed Firestore with all 104 fixtures | [x] | `scripts/seed-matches.ts` reads `data/fifa_world_cup_2026_group_fixtures.json`; knockout teams are "TBD" until determined |
 
 ---
 
@@ -455,9 +459,9 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [~] | File exists, empty |
-| CF-2 | `functions/src/updateMatchStatus.ts` — scheduled lock at kickoff | [~] | File exists, empty |
-| CF-3 | `functions/src/updateLeaderboard.ts` — rebuild leaderboard doc | [~] | File exists, empty |
+| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [x] | `onDocumentUpdated` on `/matches/{matchId}`; scores all predictions when status → "finished"; increments user totalScore |
+| CF-2 | `functions/src/updateMatchStatus.ts` — scheduled every 5 min | [x] | Locks upcoming→locked at kickoff; fetches results from football-data.org (115 min cutoff); sets status→finished + result |
+| CF-3 | `functions/src/updateLeaderboard.ts` — rebuild leaderboard doc | [x] | `onDocumentUpdated` on `/users/{userId}`; rebuilds `/leaderboard/current` sorted by totalScore |
 | CF-4 | Deploy Cloud Functions to Firebase | [ ] | `firebase deploy --only functions` |
 
 ---

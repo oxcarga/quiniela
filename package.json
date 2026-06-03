@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "emulators": "firebase emulators:start",
+    "seed": "FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/seed-matches.ts",
     "lint": "eslint"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "firebase-admin": "^13.10.0",
     "tailwindcss": "^4",
     "typescript": "^5.5.4"
   }
