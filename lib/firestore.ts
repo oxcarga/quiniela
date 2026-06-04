@@ -3,6 +3,7 @@ import {
   getDoc,
   getDocs,
   setDoc,
+  updateDoc,
   collection,
   query,
   where,
@@ -93,6 +94,19 @@ export async function setPrediction(
     predictedAwayGoals,
     submittedAt: serverTimestamp(),
     pointsEarned: null,
+  });
+}
+
+export async function setMatchResult(
+  matchId: string,
+  homeGoals: number,
+  awayGoals: number
+): Promise<void> {
+  const winner =
+    homeGoals > awayGoals ? "home" : awayGoals > homeGoals ? "away" : "draw";
+  await updateDoc(doc(db, "matches", matchId), {
+    status: "finished",
+    result: { homeGoals, awayGoals, winner },
   });
 }
 

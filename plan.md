@@ -167,6 +167,7 @@ Define this before launch so Cloud Functions implement it correctly.
 | Prediction | Points |
 |---|---|
 | Exact score (e.g. 2-1 predicted, 2-1 result) | **3 points** |
+| Predicted draw AND result is a draw (wrong score) | **2 points** |
 | Correct winner / draw, wrong score | **1 point** |
 | Wrong outcome | **0 points** |
 
@@ -450,8 +451,8 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| AD-1 | `app/admin/page.tsx` — result entry form | [~] | Stub; select match, enter goals, submit → write to Firestore |
-| AD-2 | Set `admin: true` custom claim on admin user(s) | [ ] | Via Firebase Admin SDK / console |
+| AD-1 | `app/admin/page.tsx` — result entry form | [x] | Admin claim guard via `getIdTokenResult`; match selector (all matches, ✅ prefix on finished ones, pre-fills existing score for corrections), score inputs inline with flags, writes `status: "finished"` + `result` to Firestore |
+| AD-2 | `scripts/set-admin.ts` — set `admin: true` custom claim | [x] | Works with emulator (`FIREBASE_AUTH_EMULATOR_HOST=localhost:9099`) and prod (`GOOGLE_APPLICATION_CREDENTIALS`); usage: `npx tsx scripts/set-admin.ts user@example.com` |
 
 ---
 
@@ -470,8 +471,8 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| N-1 | `components/layout/Navbar.tsx` | [~] | Scaffold exists; links, user avatar, sign-out |
-| N-2 | `app/layout.tsx` — root layout with AuthProvider | [x] | AuthProvider wired; metadata updated |
+| N-1 | `components/layout/Navbar.tsx` | [x] | Fixed bottom nav; tabs: Inicio, Partidos, Perfil, Admin (admin-only); active tab highlighted; hidden on /login and /onboarding |
+| N-2 | `app/layout.tsx` — root layout with AuthProvider | [x] | Providers (QueryClient + Auth) wired; Navbar rendered globally; `pb-16` on body to clear fixed nav |
 
 ---
 

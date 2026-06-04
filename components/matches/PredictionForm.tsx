@@ -35,7 +35,7 @@ export default function PredictionForm({ match, userId }: Props) {
 
   const isLocked = match.status !== "upcoming";
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const result = schema.safeParse({
