@@ -12,7 +12,8 @@ import {
   type QueryConstraint,
   type Timestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { fetchSignInMethodsForEmail } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
 
 export interface Match {
   matchId: string;
@@ -24,6 +25,8 @@ export interface Match {
   awayFlag: string;
   kickoffAt: Timestamp;
   status: "upcoming" | "locked" | "finished";
+  venue?: string;
+  city?: string;
   result?: {
     homeGoals: number;
     awayGoals: number;
@@ -114,4 +117,9 @@ export async function getLeaderboard(): Promise<Leaderboard | null> {
   const snap = await getDoc(doc(db, "leaderboard", "current"));
   if (!snap.exists()) return null;
   return snap.data() as Leaderboard;
+}
+
+export async function getUserByEmail(email: string): Promise<boolean> {
+  const methods = await fetchSignInMethodsForEmail(auth, email);
+  return methods.length > 0;
 }

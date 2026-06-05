@@ -21,8 +21,8 @@ export default function PredictionForm({ match, userId }: Props) {
   const { data: existing } = usePrediction(userId, match.matchId);
   const { mutate, isPending } = useSetPrediction(userId, match.matchId);
 
-  const [home, setHome] = useState("");
-  const [away, setAway] = useState("");
+  const [home, setHome] = useState("0");
+  const [away, setAway] = useState("0");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -39,8 +39,8 @@ export default function PredictionForm({ match, userId }: Props) {
     e.preventDefault();
     setError(null);
     const result = schema.safeParse({
-      homeGoals: home === "" ? NaN : Number(home),
-      awayGoals: away === "" ? NaN : Number(away),
+      homeGoals: Number(home),
+      awayGoals: Number(away),
     });
     if (!result.success) {
       setError("Ingresa un resultado válido (números enteros ≥ 0).");
@@ -49,7 +49,10 @@ export default function PredictionForm({ match, userId }: Props) {
     mutate(
       { homeGoals: result.data.homeGoals, awayGoals: result.data.awayGoals },
       {
-        onSuccess: () => setSaved(true),
+        onSuccess: () => {
+          sessionStorage.setItem("highlight:match", match.matchId);
+          setSaved(true);
+        },
         onError: () => setError("Error guardando la predicción. Intenta de nuevo."),
       }
     );
@@ -67,7 +70,6 @@ export default function PredictionForm({ match, userId }: Props) {
             onChange={(e) => { setHome(e.target.value); setSaved(false); }}
             disabled={isLocked || isPending}
             className="w-16 text-center text-xl font-bold"
-            placeholder="0"
           />
         </div>
         <span className="text-xl font-semibold text-zinc-400">–</span>
@@ -80,7 +82,6 @@ export default function PredictionForm({ match, userId }: Props) {
             onChange={(e) => { setAway(e.target.value); setSaved(false); }}
             disabled={isLocked || isPending}
             className="w-16 text-center text-xl font-bold"
-            placeholder="0"
           />
         </div>
       </div>

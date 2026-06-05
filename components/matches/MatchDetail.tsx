@@ -18,7 +18,7 @@ const PHASE_LABEL: Record<Match["phase"], string> = {
 };
 
 const STATUS_BADGE: Record<Match["status"], { label: string; className: string }> = {
-  upcoming: { label: "PRÓXIMO",  className: "bg-blue-100 text-blue-700" },
+  upcoming: { label: "PRÓXIMAMENTE",  className: "bg-blue-100 text-blue-700" },
   locked:   { label: "EN JUEGO", className: "bg-amber-100 text-amber-700" },
   finished: { label: "FT",       className: "bg-zinc-100 text-zinc-600" },
 };

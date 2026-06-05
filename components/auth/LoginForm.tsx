@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import { getUserByEmail } from "@/lib/firestore";
 
-type Status = "idle" | "loading" | "success" | "error";
+type Status = "idle" | "loading" | "confirm_new" | "success" | "error";
 
 export default function LoginForm() {
   const { sendMagicLink } = useAuth();
@@ -13,11 +14,30 @@ export default function LoginForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
     setError("");
+    console.log(email);
 
+    try {
+      debugger
+      const exists = await getUserByEmail(email);
+      if (exists) {
+        await sendMagicLink(email);
+        setStatus("success");
+      } else {
+        setStatus("confirm_new");
+      }
+    } catch (err) {
+      console.log(err);
+      setStatus("error");
+      setError("No se pudo verificar el correo. Intenta de nuevo.");
+    }
+  }
+
+  async function handleConfirmNew() {
+    setStatus("loading");
     try {
       await sendMagicLink(email);
       setStatus("success");
@@ -41,8 +61,34 @@ export default function LoginForm() {
     );
   }
 
+  if (status === "confirm_new") {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+            No encontramos una cuenta con este correo
+          </p>
+          <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+            ¿Es la primera vez que usas la app?
+          </p>
+        </div>
+        <Button className="w-full" size="lg" onClick={handleConfirmNew}>
+          Soy nuevo, continuar
+        </Button>
+        <Button
+          variant="ghost"
+          className="w-full"
+          onClick={() => setStatus("idle")}
+        >
+          Probar con otro correo
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
+      <p>status: {status.toString()}</p>
       <Input
         type="email"
         placeholder="tu@email.com"
@@ -59,7 +105,7 @@ export default function LoginForm() {
         size="lg"
         disabled={status === "loading"}
       >
-        {status === "loading" ? "Enviando…" : "Enviar enlace de acceso"}
+        {status === "loading" ? "Verificando…" : "Enviar enlace de acceso"}
       </Button>
     </form>
   );

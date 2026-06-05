@@ -21,8 +21,8 @@ function AdminContent() {
 
   const [isAdmin, setIsAdmin]           = useState<boolean | null>(null);
   const [selectedId, setSelectedId]     = useState("");
-  const [homeGoals, setHomeGoals]       = useState("");
-  const [awayGoals, setAwayGoals]       = useState("");
+  const [homeGoals, setHomeGoals]       = useState(0);
+  const [awayGoals, setAwayGoals]       = useState(0);
   const [error, setError]               = useState<string | null>(null);
   const [submitting, setSubmitting]     = useState(false);
   const [successId, setSuccessId]       = useState<string | null>(null);
@@ -49,19 +49,19 @@ function AdminContent() {
   function handleMatchChange(id: string) {
     const match = allMatches.find((m) => m.matchId === id) ?? null;
     setSelectedId(id);
-    setHomeGoals(match?.result != null ? String(match.result.homeGoals) : "");
-    setAwayGoals(match?.result != null ? String(match.result.awayGoals) : "");
+    setHomeGoals(match?.result?.homeGoals ?? 0);
+    setAwayGoals(match?.result?.awayGoals ?? 0);
     setError(null);
     setSuccessId(null);
   }
 
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
     const parsed = schema.safeParse({
-      homeGoals: homeGoals === "" ? NaN : Number(homeGoals),
-      awayGoals: awayGoals === "" ? NaN : Number(awayGoals),
+      homeGoals: Number(homeGoals),
+      awayGoals: Number(awayGoals),
     });
     if (!parsed.success) {
       setError("Ingresa un resultado válido (números enteros ≥ 0).");
@@ -77,8 +77,8 @@ function AdminContent() {
       await setMatchResult(selectedId, parsed.data.homeGoals, parsed.data.awayGoals);
       setSuccessId(selectedId);
       setSelectedId("");
-      setHomeGoals("");
-      setAwayGoals("");
+      setHomeGoals(0);
+      setAwayGoals(0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al guardar el resultado.");
     } finally {
@@ -133,7 +133,7 @@ function AdminContent() {
               <Input
                 type="number" min={0}
                 value={homeGoals}
-                onChange={(e) => setHomeGoals(e.target.value)}
+                onChange={(e) => setHomeGoals(parseInt(e.target.value))}
                 disabled={submitting}
                 className="w-16 text-center text-2xl font-bold"
                 placeholder="0"
@@ -149,7 +149,7 @@ function AdminContent() {
               <Input
                 type="number" min={0}
                 value={awayGoals}
-                onChange={(e) => setAwayGoals(e.target.value)}
+                onChange={(e) => setAwayGoals(parseInt(e.target.value))}
                 disabled={submitting}
                 className="w-16 text-center text-2xl font-bold"
                 placeholder="0"

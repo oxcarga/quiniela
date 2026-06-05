@@ -97,8 +97,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (name: string) => {
       if (!user) throw new Error("Not authenticated");
       await updateProfile(user, { displayName: name });
-      // Refresh local state since updateProfile mutates the user object in place
-      setUser({ ...user, displayName: name } as User);
+      // Use auth.currentUser — spreading would strip Firebase prototype methods
+      setUser(auth.currentUser);
       // Sync to Firestore
       await setDoc(
         doc(db, "users", user.uid),

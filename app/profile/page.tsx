@@ -68,7 +68,7 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
               ? "bg-amber-100 text-amber-700"
               : "bg-blue-100 text-blue-700"
           }`}>
-            {match.status === "locked" ? "EN JUEGO" : "PRÓXIMO"}
+            {match.status === "locked" ? "EN JUEGO" : "PRÓXIMAMENTE"}
           </span>
         )}
       </div>

@@ -1,13 +1,18 @@
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { FieldValue } from "firebase-admin/firestore";
 import { db } from "./admin";
-import { outcome } from "./../../lib/scoring"
+
+type Outcome = "home" | "away" | "draw";
+function outcome(home: number, away: number): Outcome {
+  return home > away ? "home" : away > home ? "away" : "draw";
+}
 
 function calculatePoints(
   predicted: { home: number; away: number },
   actual: { home: number; away: number }
 ): number {
   if (predicted.home === actual.home && predicted.away === actual.away) return 3;
+  if (predicted.home === predicted.away && actual.home === actual.away) return 2;
   return outcome(predicted.home, predicted.away) === outcome(actual.home, actual.away)
     ? 1
     : 0;

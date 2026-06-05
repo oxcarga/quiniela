@@ -41,5 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Cloud Functions compiled output
+/functions/lib
+
 # Misc
 *.log

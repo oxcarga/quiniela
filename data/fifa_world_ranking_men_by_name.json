@@ -1,0 +1,2363 @@
+{
+  "Francia": {
+    "ranking": "1",
+    "name": "Francia",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "España": {
+    "ranking": "2",
+    "name": "España",
+    "last_results": [
+      "W",
+      "W",
+      "D",
+      "W",
+      "D"
+    ]
+  },
+  "Argentina": {
+    "ranking": "3",
+    "name": "Argentina",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Inglaterra": {
+    "ranking": "4",
+    "name": "Inglaterra",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "D",
+      "L"
+    ]
+  },
+  "Portugal": {
+    "ranking": "5",
+    "name": "Portugal",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "D",
+      "W"
+    ]
+  },
+  "Brasil": {
+    "ranking": "6",
+    "name": "Brasil",
+    "last_results": [
+      "W",
+      "D",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Marruecos": {
+    "ranking": "7",
+    "name": "Marruecos",
+    "last_results": [
+      "W",
+      "W",
+      "D",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Países Bajos": {
+    "ranking": "8",
+    "name": "Países Bajos",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Bélgica": {
+    "ranking": "9",
+    "name": "Bélgica",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Alemania": {
+    "ranking": "10",
+    "name": "Alemania",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Croacia": {
+    "ranking": "11",
+    "name": "Croacia",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Italia": {
+    "ranking": "12",
+    "name": "Italia",
+    "last_results": [
+      "W",
+      "L",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Colombia": {
+    "ranking": "13",
+    "name": "Colombia",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Senegal": {
+    "ranking": "14",
+    "name": "Senegal",
+    "last_results": [
+      "W",
+      "L",
+      "W",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "México": {
+    "ranking": "15",
+    "name": "México",
+    "last_results": [
+      "W",
+      "D",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "EEUU": {
+    "ranking": "16",
+    "name": "EEUU",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Uruguay": {
+    "ranking": "17",
+    "name": "Uruguay",
+    "last_results": [
+      "W",
+      "D",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Japón": {
+    "ranking": "18",
+    "name": "Japón",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Suiza": {
+    "ranking": "19",
+    "name": "Suiza",
+    "last_results": [
+      "W",
+      "D",
+      "L",
+      "D",
+      "W"
+    ]
+  },
+  "Dinamarca": {
+    "ranking": "20",
+    "name": "Dinamarca",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "RI de Irán": {
+    "ranking": "21",
+    "name": "RI de Irán",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Turquía": {
+    "ranking": "22",
+    "name": "Turquía",
+    "last_results": [
+      "W",
+      "D",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Austria": {
+    "ranking": "23",
+    "name": "Austria",
+    "last_results": [
+      "W",
+      "D",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Ecuador": {
+    "ranking": "24",
+    "name": "Ecuador",
+    "last_results": [
+      "D",
+      "W",
+      "D",
+      "D",
+      "W"
+    ]
+  },
+  "República de Corea": {
+    "ranking": "25",
+    "name": "República de Corea",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Nigeria": {
+    "ranking": "26",
+    "name": "Nigeria",
+    "last_results": [
+      "W",
+      "D",
+      "W",
+      "W",
+      "D",
+      "D"
+    ]
+  },
+  "Australia": {
+    "ranking": "27",
+    "name": "Australia",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Argelia": {
+    "ranking": "28",
+    "name": "Argelia",
+    "last_results": [
+      "W",
+      "L",
+      "W",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Egipto": {
+    "ranking": "29",
+    "name": "Egipto",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "D",
+      "W"
+    ]
+  },
+  "Canadá": {
+    "ranking": "30",
+    "name": "Canadá",
+    "last_results": [
+      "D",
+      "W",
+      "D",
+      "D",
+      "W"
+    ]
+  },
+  "Noruega": {
+    "ranking": "31",
+    "name": "Noruega",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Ucrania": {
+    "ranking": "32",
+    "name": "Ucrania",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Panamá": {
+    "ranking": "33",
+    "name": "Panamá",
+    "last_results": [
+      "L",
+      "D",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Costa de Marfil": {
+    "ranking": "34",
+    "name": "Costa de Marfil",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Polonia": {
+    "ranking": "35",
+    "name": "Polonia",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Rusia": {
+    "ranking": "36",
+    "name": "Rusia",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "D",
+      "L"
+    ]
+  },
+  "Gales": {
+    "ranking": "37",
+    "name": "Gales",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "D",
+      "D",
+      "D"
+    ]
+  },
+  "Suecia": {
+    "ranking": "38",
+    "name": "Suecia",
+    "last_results": [
+      "L",
+      "D",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Serbia": {
+    "ranking": "39",
+    "name": "Serbia",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Paraguay": {
+    "ranking": "40",
+    "name": "Paraguay",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "República Checa": {
+    "ranking": "41",
+    "name": "República Checa",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Hungría": {
+    "ranking": "42",
+    "name": "Hungría",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Escocia": {
+    "ranking": "43",
+    "name": "Escocia",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Camerún": {
+    "ranking": "44",
+    "name": "Camerún",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "RD del Congo": {
+    "ranking": "45",
+    "name": "RD del Congo",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "W",
+      "D",
+      "D"
+    ]
+  },
+  "Túnez": {
+    "ranking": "46",
+    "name": "Túnez",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "D",
+      "L"
+    ]
+  },
+  "Grecia": {
+    "ranking": "47",
+    "name": "Grecia",
+    "last_results": [
+      "L",
+      "W",
+      "D",
+      "L",
+      "D"
+    ]
+  },
+  "Eslovaquia": {
+    "ranking": "48",
+    "name": "Eslovaquia",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Venezuela": {
+    "ranking": "49",
+    "name": "Venezuela",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Uzbekistán": {
+    "ranking": "50",
+    "name": "Uzbekistán",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Mali": {
+    "ranking": "51",
+    "name": "Mali",
+    "last_results": [
+      "D",
+      "D",
+      "W",
+      "L",
+      "D"
+    ]
+  },
+  "Costa Rica": {
+    "ranking": "52",
+    "name": "Costa Rica",
+    "last_results": [
+      "L",
+      "D",
+      "D",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Perú": {
+    "ranking": "53",
+    "name": "Perú",
+    "last_results": [
+      "L",
+      "D",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Chile": {
+    "ranking": "54",
+    "name": "Chile",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Qatar": {
+    "ranking": "55",
+    "name": "Qatar",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Rumanía": {
+    "ranking": "56",
+    "name": "Rumanía",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Irak": {
+    "ranking": "57",
+    "name": "Irak",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Eslovenia": {
+    "ranking": "58",
+    "name": "Eslovenia",
+    "last_results": [
+      "D",
+      "L",
+      "D",
+      "L",
+      "W"
+    ]
+  },
+  "República de Irlanda": {
+    "ranking": "59",
+    "name": "República de Irlanda",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Sudáfrica": {
+    "ranking": "60",
+    "name": "Sudáfrica",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "L",
+      "D"
+    ]
+  },
+  "Arabia Saudí": {
+    "ranking": "61",
+    "name": "Arabia Saudí",
+    "last_results": [
+      "L",
+      "D",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Burkina Faso": {
+    "ranking": "62",
+    "name": "Burkina Faso",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Jordania": {
+    "ranking": "63",
+    "name": "Jordania",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Bosnia y Herzegovina": {
+    "ranking": "64",
+    "name": "Bosnia y Herzegovina",
+    "last_results": [
+      "W",
+      "D",
+      "W",
+      "W",
+      "D"
+    ]
+  },
+  "Albania": {
+    "ranking": "65",
+    "name": "Albania",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Honduras": {
+    "ranking": "66",
+    "name": "Honduras",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Emiratos Árabes Unidos": {
+    "ranking": "67",
+    "name": "Emiratos Árabes Unidos",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "L",
+      "D"
+    ]
+  },
+  "Cabo Verde": {
+    "ranking": "68",
+    "name": "Cabo Verde",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Macedonia del Norte": {
+    "ranking": "69",
+    "name": "Macedonia del Norte",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Irlanda del Norte": {
+    "ranking": "70",
+    "name": "Irlanda del Norte",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "L",
+      "D"
+    ]
+  },
+  "Jamaica": {
+    "ranking": "71",
+    "name": "Jamaica",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Georgia": {
+    "ranking": "72",
+    "name": "Georgia",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "W",
+      "D"
+    ]
+  },
+  "Ghana": {
+    "ranking": "73",
+    "name": "Ghana",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Finlandia": {
+    "ranking": "74",
+    "name": "Finlandia",
+    "last_results": [
+      "L",
+      "W",
+      "W",
+      "D",
+      "L"
+    ]
+  },
+  "Islandia": {
+    "ranking": "75",
+    "name": "Islandia",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Israel": {
+    "ranking": "76",
+    "name": "Israel",
+    "last_results": [
+      "L",
+      "D",
+      "W",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Bolivia": {
+    "ranking": "77",
+    "name": "Bolivia",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Kosovo": {
+    "ranking": "78",
+    "name": "Kosovo",
+    "last_results": [
+      "W",
+      "D",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Omán": {
+    "ranking": "79",
+    "name": "Omán",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "D",
+      "W"
+    ]
+  },
+  "Montenegro": {
+    "ranking": "80",
+    "name": "Montenegro",
+    "last_results": [
+      "W",
+      "L",
+      "W",
+      "L",
+      "W"
+    ]
+  },
+  "Guinea": {
+    "ranking": "81",
+    "name": "Guinea",
+    "last_results": [
+      "D",
+      "W",
+      "D",
+      "D",
+      "L"
+    ]
+  },
+  "Haití": {
+    "ranking": "82",
+    "name": "Haití",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Curazao": {
+    "ranking": "83",
+    "name": "Curazao",
+    "last_results": [
+      "W",
+      "D",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Siria": {
+    "ranking": "84",
+    "name": "Siria",
+    "last_results": [
+      "W",
+      "D",
+      "D",
+      "L",
+      "W"
+    ]
+  },
+  "Nueva Zelanda": {
+    "ranking": "85",
+    "name": "Nueva Zelanda",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Bulgaria": {
+    "ranking": "86",
+    "name": "Bulgaria",
+    "last_results": [
+      "L",
+      "W",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Gabón": {
+    "ranking": "87",
+    "name": "Gabón",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Uganda": {
+    "ranking": "88",
+    "name": "Uganda",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "D",
+      "L"
+    ]
+  },
+  "Angola": {
+    "ranking": "89",
+    "name": "Angola",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Benín": {
+    "ranking": "90",
+    "name": "Benín",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Baréin": {
+    "ranking": "91",
+    "name": "Baréin",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Zambia": {
+    "ranking": "92",
+    "name": "Zambia",
+    "last_results": [
+      "L",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Tailandia": {
+    "ranking": "93",
+    "name": "Tailandia",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "RP China": {
+    "ranking": "94",
+    "name": "RP China",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Palestina": {
+    "ranking": "95",
+    "name": "Palestina",
+    "last_results": [
+      "W",
+      "W",
+      "D",
+      "D",
+      "L"
+    ]
+  },
+  "Guatemala": {
+    "ranking": "96",
+    "name": "Guatemala",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Bielorrusia": {
+    "ranking": "97",
+    "name": "Bielorrusia",
+    "last_results": [
+      "L",
+      "D",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Luxemburgo": {
+    "ranking": "98",
+    "name": "Luxemburgo",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Vietnam": {
+    "ranking": "99",
+    "name": "Vietnam",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Mozambique": {
+    "ranking": "100",
+    "name": "Mozambique",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "El Salvador": {
+    "ranking": "101",
+    "name": "El Salvador",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Trinidad y Tobago": {
+    "ranking": "102",
+    "name": "Trinidad y Tobago",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "D",
+      "L"
+    ]
+  },
+  "Tayikistán": {
+    "ranking": "103",
+    "name": "Tayikistán",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "W",
+      "D"
+    ]
+  },
+  "Madagascar": {
+    "ranking": "104",
+    "name": "Madagascar",
+    "last_results": [
+      "L",
+      "W",
+      "W",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Guinea Ecuatorial": {
+    "ranking": "105",
+    "name": "Guinea Ecuatorial",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Armenia": {
+    "ranking": "106",
+    "name": "Armenia",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "República Kirguisa": {
+    "ranking": "107",
+    "name": "República Kirguisa",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Líbano": {
+    "ranking": "108",
+    "name": "Líbano",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Comoras": {
+    "ranking": "109",
+    "name": "Comoras",
+    "last_results": [
+      "L",
+      "D",
+      "D",
+      "D",
+      "L"
+    ]
+  },
+  "Kazajstán": {
+    "ranking": "110",
+    "name": "Kazajstán",
+    "last_results": [
+      "D",
+      "D",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Kenia": {
+    "ranking": "111",
+    "name": "Kenia",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Libia": {
+    "ranking": "112",
+    "name": "Libia",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "D",
+      "D"
+    ]
+  },
+  "Tanzania": {
+    "ranking": "113",
+    "name": "Tanzania",
+    "last_results": [
+      "D",
+      "D",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Níger": {
+    "ranking": "114",
+    "name": "Níger",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "D",
+      "L"
+    ]
+  },
+  "Mauritania": {
+    "ranking": "115",
+    "name": "Mauritania",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Gambia": {
+    "ranking": "116",
+    "name": "Gambia",
+    "last_results": [
+      "L",
+      "W",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Sudán": {
+    "ranking": "117",
+    "name": "Sudán",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "RDP de Corea": {
+    "ranking": "118",
+    "name": "RDP de Corea",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "D",
+      "L"
+    ]
+  },
+  "Sierra Leona": {
+    "ranking": "119",
+    "name": "Sierra Leona",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Namibia": {
+    "ranking": "120",
+    "name": "Namibia",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Togo": {
+    "ranking": "121",
+    "name": "Togo",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "D",
+      "W"
+    ]
+  },
+  "Indonesia": {
+    "ranking": "122",
+    "name": "Indonesia",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Islas Feroe": {
+    "ranking": "123",
+    "name": "Islas Feroe",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Azerbaiyán": {
+    "ranking": "124",
+    "name": "Azerbaiyán",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Surinam": {
+    "ranking": "125",
+    "name": "Surinam",
+    "last_results": [
+      "D",
+      "D",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Chipre": {
+    "ranking": "126",
+    "name": "Chipre",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Malaui": {
+    "ranking": "127",
+    "name": "Malaui",
+    "last_results": [
+      "W",
+      "L",
+      "D",
+      "W",
+      "L"
+    ]
+  },
+  "Ruanda": {
+    "ranking": "128",
+    "name": "Ruanda",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Estonia": {
+    "ranking": "129",
+    "name": "Estonia",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Zimbabue": {
+    "ranking": "130",
+    "name": "Zimbabue",
+    "last_results": [
+      "D",
+      "L",
+      "W",
+      "L",
+      "W"
+    ]
+  },
+  "Nicaragua": {
+    "ranking": "131",
+    "name": "Nicaragua",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Guinea-Bissáu": {
+    "ranking": "132",
+    "name": "Guinea-Bissáu",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Congo": {
+    "ranking": "133",
+    "name": "Congo",
+    "last_results": [
+      "D",
+      "L",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Kuwait": {
+    "ranking": "134",
+    "name": "Kuwait",
+    "last_results": [
+      "D",
+      "W",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Filipinas": {
+    "ranking": "135",
+    "name": "Filipinas",
+    "last_results": [
+      "W",
+      "W",
+      "W",
+      "D",
+      "W",
+      "W"
+    ]
+  },
+  "Letonia": {
+    "ranking": "136",
+    "name": "Letonia",
+    "last_results": [
+      "L",
+      "D",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "India": {
+    "ranking": "137",
+    "name": "India",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Malasia": {
+    "ranking": "138",
+    "name": "Malasia",
+    "last_results": [
+      "L",
+      "W",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "República Centroafricana": {
+    "ranking": "139",
+    "name": "República Centroafricana",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Liberia": {
+    "ranking": "140",
+    "name": "Liberia",
+    "last_results": [
+      "W",
+      "D",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Turkmenistán": {
+    "ranking": "141",
+    "name": "Turkmenistán",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Burundi": {
+    "ranking": "142",
+    "name": "Burundi",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "República Dominicana": {
+    "ranking": "143",
+    "name": "República Dominicana",
+    "last_results": [
+      "L",
+      "W",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Etiopía": {
+    "ranking": "144",
+    "name": "Etiopía",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Lesoto": {
+    "ranking": "145",
+    "name": "Lesoto",
+    "last_results": [
+      "W",
+      "D",
+      "L",
+      "D",
+      "W"
+    ]
+  },
+  "Botsuana": {
+    "ranking": "146",
+    "name": "Botsuana",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Singapur": {
+    "ranking": "147",
+    "name": "Singapur",
+    "last_results": [
+      "W",
+      "L",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Lituania": {
+    "ranking": "148",
+    "name": "Lituania",
+    "last_results": [
+      "L",
+      "D",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Yemen": {
+    "ranking": "149",
+    "name": "Yemen",
+    "last_results": [
+      "D",
+      "W",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Guyana": {
+    "ranking": "150",
+    "name": "Guyana",
+    "last_results": [
+      "L",
+      "W",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Nueva Caledonia": {
+    "ranking": "151",
+    "name": "Nueva Caledonia",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "San Cristóbal y Nieves": {
+    "ranking": "152",
+    "name": "San Cristóbal y Nieves",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Islas Salomón": {
+    "ranking": "153",
+    "name": "Islas Salomón",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Fiyi": {
+    "ranking": "154",
+    "name": "Fiyi",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Hong Kong, China": {
+    "ranking": "155",
+    "name": "Hong Kong, China",
+    "last_results": [
+      "W",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Puerto Rico": {
+    "ranking": "156",
+    "name": "Puerto Rico",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Tahití": {
+    "ranking": "157",
+    "name": "Tahití",
+    "last_results": [
+      "W",
+      "L",
+      "W",
+      "W",
+      "L"
+    ]
+  },
+  "Myanmar": {
+    "ranking": "158",
+    "name": "Myanmar",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Moldavia": {
+    "ranking": "159",
+    "name": "Moldavia",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Vanuatu": {
+    "ranking": "160",
+    "name": "Vanuatu",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "L",
+      "W"
+    ]
+  },
+  "Antigua y Barbuda": {
+    "ranking": "161",
+    "name": "Antigua y Barbuda",
+    "last_results": [
+      "D",
+      "L",
+      "L",
+      "D",
+      "L"
+    ]
+  },
+  "Malta": {
+    "ranking": "162",
+    "name": "Malta",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Granada": {
+    "ranking": "163",
+    "name": "Granada",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Cuba": {
+    "ranking": "164",
+    "name": "Cuba",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "D"
+    ]
+  },
+  "Esuatini": {
+    "ranking": "165",
+    "name": "Esuatini",
+    "last_results": [
+      "L",
+      "D",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Afganistán": {
+    "ranking": "166",
+    "name": "Afganistán",
+    "last_results": [
+      "D",
+      "D",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Bermudas": {
+    "ranking": "167",
+    "name": "Bermudas",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Santa Lucía": {
+    "ranking": "168",
+    "name": "Santa Lucía",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Papúa Nueva Guinea": {
+    "ranking": "169",
+    "name": "Papúa Nueva Guinea",
+    "last_results": [
+      "L",
+      "D",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Sudán del Sur": {
+    "ranking": "170",
+    "name": "Sudán del Sur",
+    "last_results": [
+      "L",
+      "D",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "San Vicente y las Granadinas": {
+    "ranking": "171",
+    "name": "San Vicente y las Granadinas",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Maldivas": {
+    "ranking": "172",
+    "name": "Maldivas",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Andorra": {
+    "ranking": "173",
+    "name": "Andorra",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "D",
+      "L"
+    ]
+  },
+  "Chinese Taipei": {
+    "ranking": "174",
+    "name": "Chinese Taipei",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Montserrat": {
+    "ranking": "175",
+    "name": "Montserrat",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Nepal": {
+    "ranking": "176",
+    "name": "Nepal",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Camboya": {
+    "ranking": "177",
+    "name": "Camboya",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "D"
+    ]
+  },
+  "Mauricio": {
+    "ranking": "178",
+    "name": "Mauricio",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "D",
+      "L"
+    ]
+  },
+  "Barbados": {
+    "ranking": "179",
+    "name": "Barbados",
+    "last_results": [
+      "D",
+      "D",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Belice": {
+    "ranking": "180",
+    "name": "Belice",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Bangladesh": {
+    "ranking": "181",
+    "name": "Bangladesh",
+    "last_results": [
+      "D",
+      "D",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Dominica": {
+    "ranking": "182",
+    "name": "Dominica",
+    "last_results": [
+      "D",
+      "D",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Chad": {
+    "ranking": "183",
+    "name": "Chad",
+    "last_results": [
+      "L",
+      "L",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Eritrea": {
+    "ranking": "184",
+    "name": "Eritrea",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Laos": {
+    "ranking": "185",
+    "name": "Laos",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Bután": {
+    "ranking": "186",
+    "name": "Bután",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Mongolia": {
+    "ranking": "187",
+    "name": "Mongolia",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Islas Cook": {
+    "ranking": "188",
+    "name": "Islas Cook",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Aruba": {
+    "ranking": "189",
+    "name": "Aruba",
+    "last_results": [
+      "L",
+      "D",
+      "W",
+      "W",
+      "W"
+    ]
+  },
+  "Samoa": {
+    "ranking": "190",
+    "name": "Samoa",
+    "last_results": [
+      "W",
+      "W",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Sri Lanka": {
+    "ranking": "191",
+    "name": "Sri Lanka",
+    "last_results": [
+      "D",
+      "W",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Samoa Estadounidense": {
+    "ranking": "192",
+    "name": "Samoa Estadounidense",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Brunéi Darussalam": {
+    "ranking": "193",
+    "name": "Brunéi Darussalam",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Macao": {
+    "ranking": "194",
+    "name": "Macao",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Islas Caimán": {
+    "ranking": "195",
+    "name": "Islas Caimán",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "D",
+      "W"
+    ]
+  },
+  "Santo Tomé y Príncipe": {
+    "ranking": "196",
+    "name": "Santo Tomé y Príncipe",
+    "last_results": [
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Yibuti": {
+    "ranking": "197",
+    "name": "Yibuti",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "W"
+    ]
+  },
+  "Somalia": {
+    "ranking": "198",
+    "name": "Somalia",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "D",
+      "W"
+    ]
+  },
+  "Tonga": {
+    "ranking": "199",
+    "name": "Tonga",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Timor Oriental": {
+    "ranking": "200",
+    "name": "Timor Oriental",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Pakistán": {
+    "ranking": "201",
+    "name": "Pakistán",
+    "last_results": [
+      "L",
+      "D",
+      "D",
+      "L",
+      "L"
+    ]
+  },
+  "Guam": {
+    "ranking": "202",
+    "name": "Guam",
+    "last_results": [
+      "W",
+      "L",
+      "L",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Gibraltar": {
+    "ranking": "203",
+    "name": "Gibraltar",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "W",
+      "W"
+    ]
+  },
+  "Seychelles": {
+    "ranking": "204",
+    "name": "Seychelles",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "D",
+      "L"
+    ]
+  },
+  "Turcas y Caicos": {
+    "ranking": "205",
+    "name": "Turcas y Caicos",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Liechtenstein": {
+    "ranking": "206",
+    "name": "Liechtenstein",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Bahamas": {
+    "ranking": "207",
+    "name": "Bahamas",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "L"
+    ]
+  },
+  "Islas Vírgenes Estadounidenses": {
+    "ranking": "208",
+    "name": "Islas Vírgenes Estadounidenses",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "Islas Vírgenes Británicas": {
+    "ranking": "209",
+    "name": "Islas Vírgenes Británicas",
+    "last_results": [
+      "W",
+      "W",
+      "D",
+      "W",
+      "L",
+      "L"
+    ]
+  },
+  "Anguila": {
+    "ranking": "210",
+    "name": "Anguila",
+    "last_results": [
+      "L",
+      "W",
+      "L",
+      "W",
+      "L"
+    ]
+  },
+  "San Marino": {
+    "ranking": "211",
+    "name": "San Marino",
+    "last_results": [
+      "L",
+      "L",
+      "L",
+      "L",
+      "D"
+    ]
+  }
+}

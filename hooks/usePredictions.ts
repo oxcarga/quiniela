@@ -30,7 +30,7 @@ export function useSetPrediction(userId: string | null, matchId: string) {
     }) => setPrediction(userId!, matchId, homeGoals, awayGoals),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["predictions", userId, matchId],
+        queryKey: ["predictions", userId],
       });
     },
   });
