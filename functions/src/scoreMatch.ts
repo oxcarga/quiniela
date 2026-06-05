@@ -18,43 +18,45 @@ function calculatePoints(
     : 0;
 }
 
-export const scoreMatch = onDocumentUpdated("matches/{matchId}", async (event) => {
-  const before = event.data?.before.data();
-  const after = event.data?.after.data();
+export const scoreMatch = onDocumentUpdated(
+  { document: "matches/{matchId}", region: "us-central1" },
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
 
-  // Only run when status transitions to "finished"
-  if (!after || after.status !== "finished" || before?.status === "finished") return;
+    if (!after || after.status !== "finished" || before?.status === "finished") return;
 
-  const { matchId, result } = after as {
-    matchId: string;
-    result: { homeGoals: number; awayGoals: number };
-  };
+    const { matchId, result } = after as {
+      matchId: string;
+      result: { homeGoals: number; awayGoals: number };
+    };
 
-  // collectionGroup("matches") searches /predictions/{userId}/matches as well as
-  // the top-level /matches collection — skip docs that aren't predictions
-  const predictionsSnap = await db
-    .collectionGroup("matches")
-    .where("matchId", "==", matchId)
-    .get();
+    // collectionGroup("matches") searches /predictions/{userId}/matches as well as
+    // the top-level /matches collection — skip docs that aren't predictions
+    const predictionsSnap = await db
+      .collectionGroup("matches")
+      .where("matchId", "==", matchId)
+      .get();
 
-  if (predictionsSnap.empty) return;
+    if (predictionsSnap.empty) return;
 
-  const batch = db.batch();
+    const batch = db.batch();
 
-  for (const predDoc of predictionsSnap.docs) {
-    const pred = predDoc.data();
-    if (typeof pred.predictedHomeGoals !== "number") continue; // not a prediction doc
+    for (const predDoc of predictionsSnap.docs) {
+      const pred = predDoc.data();
+      if (typeof pred.predictedHomeGoals !== "number") continue;
 
-    const points = calculatePoints(
-      { home: pred.predictedHomeGoals, away: pred.predictedAwayGoals },
-      { home: result.homeGoals, away: result.awayGoals }
-    );
+      const points = calculatePoints(
+        { home: pred.predictedHomeGoals, away: pred.predictedAwayGoals },
+        { home: result.homeGoals, away: result.awayGoals }
+      );
 
-    batch.update(predDoc.ref, { pointsEarned: points });
-    batch.update(db.collection("users").doc(pred.userId as string), {
-      totalScore: FieldValue.increment(points),
-    });
+      batch.update(predDoc.ref, { pointsEarned: points });
+      batch.update(db.collection("users").doc(pred.userId as string), {
+        totalScore: FieldValue.increment(points),
+      });
+    }
+
+    await batch.commit();
   }
-
-  await batch.commit();
-});
+);

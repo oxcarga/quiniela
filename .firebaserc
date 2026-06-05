@@ -1,5 +1,6 @@
 {
   "projects": {
+    "default": "quiniela-ee895",
     "firebase deploy --only firestore": "quiniela-ee895"
   },
   "targets": {},

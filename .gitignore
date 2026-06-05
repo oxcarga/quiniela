@@ -43,6 +43,7 @@ next-env.d.ts
 
 # Cloud Functions compiled output
 /functions/lib
+/functions/service-account.json
 
 # Misc
 *.log
