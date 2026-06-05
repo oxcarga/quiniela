@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const sendMagicLink = useCallback(async (email: string) => {
     const actionCodeSettings = {
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`,
+      url: `${window.location.origin}/auth/confirm`,
       handleCodeInApp: true,
     };
     await sendSignInLinkToEmail(auth, email, actionCodeSettings);
