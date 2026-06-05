@@ -9,7 +9,10 @@ import { useSearchParams } from 'next/navigation'
 
 type Status = "idle" | "loading" | "confirm_new" | "success" | "error";
 
-function Debug() {
+type DebugProps = {
+  status: Status
+}
+function Debug(props: DebugProps) {
   const debug = useSearchParams().get('debug');
   return <>
     {debug && <div>
@@ -22,7 +25,7 @@ function Debug() {
       <p>6: {process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}</p>
       <p>7: {process.env.NEXT_PUBLIC_FIREBASE_APP_ID}</p>
       <p>8: {process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}</p>
-      <p>status: {status.toString()}</p>
+      <p>status: {props.status.toString()}</p>
     </div>}
   </>
 }
@@ -110,7 +113,7 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-3">
       
       <Suspense>
-        <Debug />
+        <Debug status={status} />
       </Suspense>
       <Input
         type="email"
