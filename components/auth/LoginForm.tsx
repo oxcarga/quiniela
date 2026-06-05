@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
@@ -9,12 +9,30 @@ import { useSearchParams } from 'next/navigation'
 
 type Status = "idle" | "loading" | "confirm_new" | "success" | "error";
 
+function Debug() {
+  const debug = useSearchParams().get('debug');
+  return <>
+    {debug && <div>
+      <p>debug: {debug}</p>
+      <p>1: {process.env.NEXT_PUBLIC_APP_URL}</p>
+      <p>2: {process.env.NEXT_PUBLIC_FIREBASE_API_KEY}</p>
+      <p>3: {process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}</p>
+      <p>4: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</p>
+      <p>5: {process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}</p>
+      <p>6: {process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}</p>
+      <p>7: {process.env.NEXT_PUBLIC_FIREBASE_APP_ID}</p>
+      <p>8: {process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}</p>
+      <p>status: {status.toString()}</p>
+    </div>}
+  </>
+}
+
 export default function LoginForm() {
   const { sendMagicLink } = useAuth();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
-  const debug = useSearchParams().get('debug');
+  
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,18 +109,9 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       
-      {debug && <div>
-        <p>debug: {debug}</p>
-        <p>1: {process.env.NEXT_PUBLIC_APP_URL}</p>
-        <p>2: {process.env.NEXT_PUBLIC_FIREBASE_API_KEY}</p>
-        <p>3: {process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}</p>
-        <p>4: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</p>
-        <p>5: {process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}</p>
-        <p>6: {process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}</p>
-        <p>7: {process.env.NEXT_PUBLIC_FIREBASE_APP_ID}</p>
-        <p>8: {process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}</p>
-        <p>status: {status.toString()}</p>
-      </div>}
+      <Suspense>
+        <Debug />
+      </Suspense>
       <Input
         type="email"
         placeholder="tu@email.com"
