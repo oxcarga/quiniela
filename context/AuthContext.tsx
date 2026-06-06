@@ -9,7 +9,6 @@ import {
 } from "react";
 import {
   onAuthStateChanged,
-  sendSignInLinkToEmail,
   signInWithEmailLink,
   signOut as firebaseSignOut,
   updateProfile,
@@ -55,11 +54,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const sendMagicLink = useCallback(async (email: string) => {
-    const actionCodeSettings = {
-      url: `${window.location.origin}/auth/confirm`,
-      handleCodeInApp: true,
-    };
-    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    const res = await fetch("/api/auth/send-magic-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const { error } = await res.json();
+      throw new Error(error ?? "Error al enviar el enlace");
+    }
     localStorage.setItem(MAGIC_LINK_EMAIL_KEY, email);
   }, []);
 
