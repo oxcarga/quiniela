@@ -24,6 +24,7 @@ export async function POST(request: Request) {
   }
 
   const env = process.env.NEXT_PUBLIC_FIREBASE_ENV ? `[${process.env.NEXT_PUBLIC_FIREBASE_ENV}]` : "";
+  const domain = process.env.NEXT_PUBLIC_FIREBASE_ENV === 'DEV' ? "http://localhost:3000" : "https://predicciones.app";
   
   const { error } = await resend.emails.send({
     // from: "Quiniela Mundial 2026 <onboarding@resend.dev>",
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
           <strong>${email}</strong>.
         </p>
         <a
-          href="${link.replace("quiniela-ee895.firebaseapp.com", "predicciones.app")}"
+          href="${link.replace("https://quiniela-ee895.firebaseapp.com", domain)}"
           style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:15px;font-weight:500"
         >
           Iniciar sesión (new)
