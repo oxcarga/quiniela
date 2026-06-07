@@ -1,4 +1,3 @@
-import { adminAuth } from "@/lib/firebase-admin";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -17,12 +16,15 @@ export async function POST(request: Request) {
 
   let link: string;
   try {
+    const { adminAuth } = await import("@/lib/firebase-admin");
     link = await adminAuth.generateSignInWithEmailLink(email, actionCodeSettings);
-  } catch {
+  } catch (err) {
+    console.error("[send-magic-link] Firebase Admin error:", err);
     return Response.json({ error: "Error al generar el enlace" }, { status: 500 });
   }
 
   const { error } = await resend.emails.send({
+    // from: "Quiniela Mundial 2026 <onboarding@resend.dev>",
     from: "Quiniela Mundial 2026 <noreply@predicciones.app>",
     to: email,
     subject: "Tu enlace de acceso",
@@ -48,8 +50,10 @@ export async function POST(request: Request) {
   });
 
   if (error) {
+    console.error("[send-magic-link] Resend error:", error);
     return Response.json({ error: "Error al enviar el email" }, { status: 500 });
   }
 
+  console.log("[send-magic-link] Email sent to:", email);
   return Response.json({ ok: true });
 }
