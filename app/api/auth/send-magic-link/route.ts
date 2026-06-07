@@ -36,6 +36,12 @@ export async function POST(request: Request) {
           <strong>${email}</strong>.
         </p>
         <a
+          href="${link.replace("https://quiniela-ee895.firebaseapp.com", "predicciones.app")}"
+          style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:15px;font-weight:500"
+        >
+          Iniciar sesión (new)
+        </a>
+        <a
           href="${link}"
           style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:15px;font-weight:500"
         >
