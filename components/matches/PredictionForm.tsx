@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function PredictionForm({ match, userId }: Props) {
-  const { data: existing } = usePrediction(userId, match.matchId);
+  const { data: existing, isLoading } = usePrediction(userId, match.matchId);
   const { mutate, isPending } = useSetPrediction(userId, match.matchId);
 
   const [home, setHome] = useState("0");
@@ -34,6 +34,10 @@ export default function PredictionForm({ match, userId }: Props) {
   }, [existing]);
 
   const isLocked = match.status !== "upcoming";
+
+  if (isLocked && !isLoading && !existing) {
+    return <p className="text-center text-sm text-zinc-400">Sin predicción</p>;
+  }
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
