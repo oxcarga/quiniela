@@ -18,6 +18,10 @@ export default function AuthConfirmPage() {
 
   useEffect(() => {
     const url = window.location.href;
+    const storedEmail = localStorage.getItem("emailForSignIn");
+    console.log("[auth/confirm] url:", url);
+    console.log("[auth/confirm] isEmailLinkUrl:", isEmailLinkUrl(url));
+    console.log("[auth/confirm] storedEmail:", storedEmail);
 
     if (!isEmailLinkUrl(url)) {
       router.replace("/login");
@@ -27,6 +31,7 @@ export default function AuthConfirmPage() {
     confirmMagicLink(url).then((user) => {
       router.replace(user.displayName ? "/" : "/onboarding");
     }).catch((err: Error) => {
+      console.error("[auth/confirm] confirmMagicLink error:", err);
       if (err.message === "EMAIL_REQUIRED") {
         setStatus("email_required");
       } else {

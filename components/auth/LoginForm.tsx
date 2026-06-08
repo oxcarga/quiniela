@@ -44,7 +44,6 @@ export default function LoginForm() {
     console.log(email);
 
     try {
-      debugger
       const exists = await getUserByEmail(email);
       if (exists) {
         await sendMagicLink(email);

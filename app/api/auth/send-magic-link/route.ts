@@ -23,14 +23,15 @@ export async function POST(request: Request) {
     return Response.json({ error: "Error al generar el enlace" }, { status: 500 });
   }
 
-  const env = process.env.NEXT_PUBLIC_FIREBASE_ENV ? `[${process.env.NEXT_PUBLIC_FIREBASE_ENV}]` : "";
-  const domain = process.env.NEXT_PUBLIC_FIREBASE_ENV === 'DEV' ? "http://localhost:3000" : "https://predicciones.app";
-  
+  const isLocal = process.env.NEXT_PUBLIC_APP_URL?.startsWith("http://localhost");
+  const from = isLocal
+    ? "Quiniela Mundial 2026 <onboarding@resend.dev>"
+    : "Quiniela Mundial 2026 <noreply@predicciones.app>";
+
   const { error } = await resend.emails.send({
-    // from: "Quiniela Mundial 2026 <onboarding@resend.dev>",
-    from: "Quiniela Mundial 2026 <noreply@predicciones.app>",
+    from,
     to: email,
-    subject: `Tu enlace de acceso ${env}`,
+    subject: "Tu enlace de acceso",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
         <h2 style="margin:0 0 8px;font-size:20px;font-weight:600">Quiniela Mundial 2026</h2>
@@ -38,12 +39,6 @@ export async function POST(request: Request) {
           Haz clic en el botón de abajo para iniciar sesión con
           <strong>${email}</strong>.
         </p>
-        <a
-          href="${link.replace("https://quiniela-ee895.firebaseapp.com", domain)}"
-          style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:15px;font-weight:500"
-        >
-          Iniciar sesión (new)
-        </a>
         <a
           href="${link}"
           style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:15px;font-weight:500"
