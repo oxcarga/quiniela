@@ -97,7 +97,7 @@ export default function MatchList() {
           )}
           <div className="flex flex-col gap-2">
             {grouped[phase]!.map((m) => (
-              <MatchCard key={m.matchId} match={m} prediction={predictionByMatchId.get(m.matchId)} highlighted={highlightedMatchId === m.matchId} />
+              <MatchCard key={m.matchId} match={m} prediction={predictionByMatchId.get(m.matchId)} highlighted={highlightedMatchId === m.matchId} userId={user!.uid} />
             ))}
           </div>
         </section>

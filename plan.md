@@ -531,9 +531,9 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 ## 13. Improvements
 
-| # | Improvement | Notes |
-|---|---|---|
-| I-1 | Inline predictions on `/matches` | Allow users to submit/edit their prediction directly from the match list card, without navigating to `/matches/:matchId`. The detail page can remain for the full result + points view. |
+| # | Improvement | Notes | Done |
+|---|---|---|---|
+| I-1 | Inline predictions on `/matches` | Allow users to submit/edit their prediction directly from the match list card, without navigating to `/matches/:matchId`. The detail page can remain for the full result + points view. | ✅ 
 | I-2 | Show prediction + result inline on `/matches` | Alongside each match card, display the user's predicted score. If the match is finished, show the official result and points earned side by side with the prediction. |
 | I-3 | Show FIFA team rankings on `/matches` | We currently have ranking information in `data/fifa_world_cup_2026_group_fixtures.json`. Display each team's current standing next to their name in the match card and detail page. |
 | I-4 | Show rules in Spanish | Display the scoring rules somewhere accessible. Options: (a) a "?" or "Reglas" button in the Navbar/Inicio tab that opens a modal; (b) a collapsible section at the bottom of the Inicio page; (c) a dedicated `/rules` page linked from the footer. Modal approach keeps it lightweight and doesn't require a new route. |
