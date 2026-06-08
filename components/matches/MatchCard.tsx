@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Match, Prediction } from "@/lib/firestore";
+import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 
 const STATUS_BADGE: Record<Match["status"], { label: string; className: string }> = {
   upcoming: { label: "PRÓXIMAMENTE", className: "bg-blue-100 text-blue-700" },
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function MatchCard({ match, prediction, highlighted = false }: Props) {
-  const badge = STATUS_BADGE[match.status];
+  const badge = STATUS_BADGE[getEffectiveStatus(match)];
   const kickoffFormatted = new Intl.DateTimeFormat(undefined, {
     month: "short",
     day: "numeric",

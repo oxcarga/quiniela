@@ -4,7 +4,7 @@ import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPredictions } from "@/hooks/usePredictions";
 import { useMatches } from "@/hooks/useMatches";
-import type { Match, Prediction } from "@/lib/firestore";
+import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 
 const POINTS_BADGE: Record<number, { label: string; className: string }> = {
   3: { label: "3 pts", className: "bg-green-100 text-green-700" },
@@ -14,6 +14,7 @@ const POINTS_BADGE: Record<number, { label: string; className: string }> = {
 };
 
 function PredictionRow({ prediction, match }: { prediction: Prediction; match: Match }) {
+  const effectiveStatus = getEffectiveStatus(match);
   const kickoffFormatted = new Intl.DateTimeFormat(undefined, {
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
   }).format(match.kickoffAt.toDate());
@@ -43,7 +44,7 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
       </div>
 
       {/* Result */}
-      {match.status === "finished" && match.result && (
+      {effectiveStatus === "finished" && match.result && (
         <div className="flex flex-col items-center">
           <span className="text-xs text-zinc-400">Resultado</span>
           <span className="tabular-nums font-semibold">
@@ -54,7 +55,7 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
 
       {/* Points */}
       <div className="w-14 text-right">
-        {match.status === "finished" ? (
+        {effectiveStatus === "finished" ? (
           badge ? (
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}>
               {badge.label}
@@ -64,11 +65,11 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
           )
         ) : (
           <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-            match.status === "locked"
+            effectiveStatus === "locked"
               ? "bg-amber-100 text-amber-700"
               : "bg-blue-100 text-blue-700"
           }`}>
-            {match.status === "locked" ? "EN JUEGO" : "PRÓXIMAMENTE"}
+            {effectiveStatus === "locked" ? "EN JUEGO" : "PRÓXIMAMENTE"}
           </span>
         )}
       </div>

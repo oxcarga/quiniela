@@ -56,6 +56,12 @@ export interface Leaderboard {
   rankings: LeaderboardEntry[];
 }
 
+export function getEffectiveStatus(match: Match): Match["status"] {
+  if (match.status === "finished") return "finished";
+  if (Date.now() >= match.kickoffAt.toMillis()) return "locked";
+  return match.status;
+}
+
 export async function getMatch(matchId: string): Promise<Match | null> {
   const snap = await getDoc(doc(db, "matches", matchId));
   if (!snap.exists()) return null;
