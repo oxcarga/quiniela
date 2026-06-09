@@ -28,6 +28,10 @@ export async function POST(request: Request) {
     ? "Quiniela Mundial 2026 <onboarding@resend.dev>"
     : "Quiniela Mundial 2026 <noreply@predicciones.app>";
 
+  
+  // ONLY in dev - skip email sending and return the link directly
+  if (isLocal) return Response.json({ ok: true, link });
+
   const { error } = await resend.emails.send({
     from,
     to: email,

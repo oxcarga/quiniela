@@ -24,6 +24,7 @@ const SESSION_COOKIE = "auth_session";
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  signInLinkDEV: string;
   sendMagicLink: (email: string) => Promise<void>;
   confirmMagicLink: (url: string, email?: string) => Promise<User>;
   setDisplayName: (name: string) => Promise<void>;
@@ -36,6 +37,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signInLinkDEV, setSignInLinkDEV] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -62,6 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!res.ok) {
       const { error } = await res.json();
       throw new Error(error ?? "Error al enviar el enlace");
+    }
+    const resJson = await res.json();
+    if (resJson.link) {
+      setSignInLinkDEV(resJson.link);
     }
     localStorage.setItem(MAGIC_LINK_EMAIL_KEY, email);
   }, []);
@@ -112,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
+        signInLinkDEV,
         sendMagicLink,
         confirmMagicLink,
         setDisplayName,

@@ -159,7 +159,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
             {effectiveStatus === "upcoming" && (
               <button
                 onClick={openForm}
-                className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                className="cursor-pointer text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
               >
                 Editar
               </button>

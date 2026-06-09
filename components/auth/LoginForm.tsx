@@ -31,7 +31,7 @@ function Debug(props: DebugProps) {
 }
 
 export default function LoginForm() {
-  const { sendMagicLink } = useAuth();
+  const { sendMagicLink, signInLinkDEV } = useAuth();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -72,13 +72,27 @@ export default function LoginForm() {
   if (status === "success") {
     return (
       <div className="text-center space-y-2">
-        <p className="text-sm font-medium text-foreground">
-          Revisa tu correo
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Enviamos un enlace a <span className="font-medium">{email}</span>.
-          Haz clic en él para entrar.
-        </p>
+        {
+          signInLinkDEV && 
+          <>
+            <a className="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" 
+              href={signInLinkDEV}>Skip login ➔</a>
+            <br />
+          </>
+        }
+        {
+          !signInLinkDEV && 
+          <>
+            <p className="text-sm font-medium text-foreground">
+              Revisa tu correo!!
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Enviamos un enlace a <span className="font-medium">{email}</span>.
+              Haz clic en él para entrar.
+            </p>
+          </>
+        }
+        
       </div>
     );
   }
