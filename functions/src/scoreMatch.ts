@@ -1,6 +1,7 @@
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { FieldValue } from "firebase-admin/firestore";
 import { db } from "./admin";
+import { rebuildLeaderboard } from "./leaderboard";
 
 type Outcome = "home" | "away" | "draw";
 function outcome(home: number, away: number): Outcome {
@@ -58,5 +59,6 @@ export const scoreMatch = onDocumentUpdated(
     }
 
     await batch.commit();
+    await rebuildLeaderboard();
   }
 );
