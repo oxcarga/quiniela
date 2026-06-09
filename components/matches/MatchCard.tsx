@@ -82,17 +82,29 @@ export default function MatchCard({ match, prediction, highlighted = false, user
       <Link
         href={`/matches/${match.matchId}`}
         onClick={() => sessionStorage.setItem("scroll:matches", String(window.scrollY))}
-        className="flex items-center justify-between px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+        className="flex flex-col items-center justify-between px-4 py-5 hover:bg-zinc-50 dark:hover:bg-zinc-800"
       >
+
+        {/* Group + venue */}
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            {match.group ? ` Grupo ${match.group}` : ""}
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">{kickoffFormatted}</p>
+          <p className="text-xs text-zinc-400">{match.venue}, {match.city}</p>
+        </div>
+
+        <div className="flex items-center justify-between px-4 py-3 gap-15">
         <div className="flex w-28 flex-col items-center gap-1">
           <span className="text-3xl">{match.homeFlag}</span>
           <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
         </div>
 
         <div className="flex flex-col items-center gap-1">
-          {match.status === "finished" && match.result ? (
+            {/* match is "finished" OR "locked" */}
+            {match.status !== "upcoming" ? (
             <span className="text-2xl font-bold tabular-nums">
-              {match.result.homeGoals} – {match.result.awayGoals}
+              {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals ?? 0}
             </span>
           ) : (
             <span className="text-lg font-semibold text-zinc-400">vs</span>
@@ -106,11 +118,12 @@ export default function MatchCard({ match, prediction, highlighted = false, user
         <div className="flex w-28 flex-col items-center gap-1">
           <span className="text-3xl">{match.awayFlag}</span>
           <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
+          </div>
         </div>
       </Link>
 
       {/* Prediction area — sibling to Link */}
-      <div className="border-t border-zinc-100 px-4 py-2 dark:border-zinc-800">
+      <div className="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
         {formOpen ? (
           <form onSubmit={handleSave} className="flex flex-col items-center gap-2 py-1">
             <div className="flex items-center gap-3">
@@ -152,7 +165,10 @@ export default function MatchCard({ match, prediction, highlighted = false, user
             </div>
           </form>
         ) : prediction ? (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <span className="px-3 py-0.5 text-sm font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
+              Tu predicción: 
+            </span>
             <span className="rounded-full bg-green-50 px-3 py-0.5 text-lg font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
               {prediction.predictedHomeGoals} – {prediction.predictedAwayGoals}
             </span>

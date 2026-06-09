@@ -58,7 +58,7 @@ export const updateMatchStatus = onSchedule("every 5 minutes", async () => {
 
   if (!upcomingSnap.empty) {
     const batch = db.batch();
-    upcomingSnap.docs.forEach((d) => batch.update(d.ref, { status: "locked" }));
+    upcomingSnap.docs.forEach((d) => batch.update(d.ref, { status: "locked", result: { awayGoals: 0, homeGoals: 0, winner: "draw" } }));
     await batch.commit();
   }
 

@@ -62,9 +62,9 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
           <span className="text-center font-semibold">{match.homeTeam}</span>
         </div>
         <div className="flex flex-col items-center gap-1">
-          {match.status === "finished" && match.result ? (
+          {match.status !== "upcoming" ? (
             <span className="text-4xl font-bold tabular-nums">
-              {match.result.homeGoals} – {match.result.awayGoals}
+              {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals || 0}
             </span>
           ) : (
             <span className="text-2xl font-semibold text-zinc-400">vs</span>
