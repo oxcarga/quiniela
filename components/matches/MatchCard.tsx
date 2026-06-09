@@ -95,29 +95,29 @@ export default function MatchCard({ match, prediction, highlighted = false, user
         </div>
 
         <div className="flex items-center justify-between px-4 py-3 gap-15">
-        <div className="flex w-28 flex-col items-center gap-1">
-          <span className="text-3xl">{match.homeFlag}</span>
-          <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
-        </div>
+          <div className="flex w-28 flex-col items-center gap-1">
+            <span className="text-3xl">{match.homeFlag}</span>
+            <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
+          </div>
 
-        <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-1">
             {/* match is "finished" OR "locked" */}
             {match.status !== "upcoming" ? (
-            <span className="text-2xl font-bold tabular-nums">
-              {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals ?? 0}
+              <span className="text-2xl font-bold tabular-nums">
+                {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals ?? 0}
+              </span>
+            ) : (
+              <span className="text-lg font-semibold text-zinc-400">vs</span>
+            )}
+            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}>
+              {badge.label}
             </span>
-          ) : (
-            <span className="text-lg font-semibold text-zinc-400">vs</span>
-          )}
-          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}>
-            {badge.label}
-          </span>
-          <span className="text-xs text-zinc-500">{kickoffFormatted}</span>
-        </div>
+            <span className="text-xs text-zinc-500">{kickoffFormatted}</span>
+          </div>
 
-        <div className="flex w-28 flex-col items-center gap-1">
-          <span className="text-3xl">{match.awayFlag}</span>
-          <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
+          <div className="flex w-28 flex-col items-center gap-1">
+            <span className="text-3xl">{match.awayFlag}</span>
+            <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
           </div>
         </div>
       </Link>
