@@ -108,12 +108,13 @@ export async function setPrediction(
 export async function setMatchResult(
   matchId: string,
   homeGoals: number,
-  awayGoals: number
+  awayGoals: number,
+  matchEnded: boolean
 ): Promise<void> {
   const winner =
     homeGoals > awayGoals ? "home" : awayGoals > homeGoals ? "away" : "draw";
   await updateDoc(doc(db, "matches", matchId), {
-    status: "finished",
+    status: matchEnded ? "finished" : "locked",
     result: { homeGoals, awayGoals, winner },
   });
 }

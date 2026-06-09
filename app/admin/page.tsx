@@ -23,6 +23,7 @@ function AdminContent() {
   const [selectedId, setSelectedId]     = useState("");
   const [homeGoals, setHomeGoals]       = useState(0);
   const [awayGoals, setAwayGoals]       = useState(0);
+  const [matchEnded, setMatchEnded]     = useState(false);
   const [error, setError]               = useState<string | null>(null);
   const [submitting, setSubmitting]     = useState(false);
   const [successId, setSuccessId]       = useState<string | null>(null);
@@ -34,6 +35,13 @@ function AdminContent() {
       setIsAdmin(result.claims.admin === true);
     });
   }, [user]);
+
+  // update the status of the checkbox based on what's coming from the database
+  useEffect(() => {
+    if (!matches || !selectedId) return;
+    const selected = matches?.find((m) => m.matchId === selectedId) ?? null;
+    setMatchEnded(selected?.status === "finished");
+  }, [successId, selectedId]);
 
   if (isAdmin === null) return <p className="text-center text-sm text-zinc-500">Verificando permisos…</p>;
   if (!isAdmin) return (
@@ -74,7 +82,7 @@ function AdminContent() {
 
     setSubmitting(true);
     try {
-      await setMatchResult(selectedId, parsed.data.homeGoals, parsed.data.awayGoals);
+      await setMatchResult(selectedId, parsed.data.homeGoals, parsed.data.awayGoals, matchEnded);
       setSuccessId(selectedId);
       setSelectedId("");
       setHomeGoals(0);
@@ -157,6 +165,15 @@ function AdminContent() {
             </div>
           </div>
         )}
+        <label htmlFor="game-finished" className="flex items-center gap-2 cursor-pointer select-none text-sm font-medium">
+          <input 
+            id="game-finished"
+            className="w-4 h-4 accent-primary cursor-pointer"
+            type="checkbox" 
+            checked={matchEnded}
+            onChange={(e) => setMatchEnded(e.target.checked)} />
+          Partido finalizado?
+        </label>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
