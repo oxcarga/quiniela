@@ -15,7 +15,7 @@ import {
   isSignInWithEmailLink,
   type User,
 } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 const MAGIC_LINK_EMAIL_KEY = "emailForSignIn";
@@ -76,20 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const result = await signInWithEmailLink(auth, email, url);
       localStorage.removeItem(MAGIC_LINK_EMAIL_KEY);
-
-      // Create or update the Firestore user document
-      await setDoc(
-        doc(db, "users", result.user.uid),
-        {
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName ?? null,
-          photoURL: result.user.photoURL ?? null,
-          totalScore: 0,
-          createdAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
 
       return result.user;
     },

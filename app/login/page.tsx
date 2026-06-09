@@ -13,6 +13,9 @@ export default function LoginPage() {
           </p>
         </div>
         <LoginForm />
+        <p className="text-center text-md text-muted-foreground">
+          Hecho con ❤︎ y 🤖 en PZ, CR
+        </p>
       </div>
     </main>
   );
