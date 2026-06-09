@@ -94,10 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await updateProfile(user, { displayName: name });
       // Use auth.currentUser — spreading would strip Firebase prototype methods
       setUser(auth.currentUser);
-      // Sync to Firestore
+      // Sync to Firestore — write full profile so leaderboard and scoring have all fields
       await setDoc(
         doc(db, "users", user.uid),
-        { displayName: name },
+        {
+          uid: user.uid,
+          email: user.email,
+          photoURL: user.photoURL ?? null,
+          displayName: name,
+        },
         { merge: true }
       );
     },
