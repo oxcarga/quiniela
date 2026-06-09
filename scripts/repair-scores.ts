@@ -6,7 +6,7 @@
  * (prediction documents) rather than accumulating.
  *
  * Usage (production):
- *   GOOGLE_APPLICATION_CREDENTIALS=./service-account.json npx tsx scripts/repair-scores.ts
+ *   GOOGLE_APPLICATION_CREDENTIALS=./functions/service-account.json npx tsx scripts/repair-scores.ts
  *
  * Usage (emulator):
  *   FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/repair-scores.ts
@@ -16,7 +16,9 @@ import { initializeApp, cert, applicationDefault, getApps } from "firebase-admin
 import { getFirestore } from "firebase-admin/firestore";
 
 if (!getApps().length) {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+  if (process.env.FIRESTORE_EMULATOR_HOST) {
+    initializeApp({ projectId: "quiniela-ee895" });
+  } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)) });
   } else {
     initializeApp({ credential: applicationDefault() });
