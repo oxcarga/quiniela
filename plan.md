@@ -1,7 +1,7 @@
 # Mundial 2026 — Quiniela App: Project Plan
 
-> Last updated: June 2026  
-> Status: In Progress — foundation + AuthContext done, login flow next
+> Last updated: June 9, 2026  
+> Status: In Progress — core features complete, tournament underway
 
 ---
 
@@ -259,6 +259,12 @@ Define this before launch so Cloud Functions implement it correctly.
 │   ├── page.tsx                    # Home / leaderboard
 │   ├── login/
 │   │   └── page.tsx                # Login screen
+│   ├── api/
+│   │   └── auth/
+│   │       ├── send-magic-link/
+│   │       │   └── route.ts        # Generates Firebase magic link + sends custom email via Resend
+│   │       └── check-email/
+│   │           └── route.ts        # Checks if email is registered (Admin SDK, no auth required)
 │   ├── auth/
 │   │   └── confirm/
 │   │       └── page.tsx            # Magic link confirmation
@@ -294,7 +300,8 @@ Define this before launch so Cloud Functions implement it correctly.
 │   └── AuthContext.tsx             # Auth state + all auth methods
 │
 ├── lib/
-│   ├── firebase.ts                 # Firebase init
+│   ├── firebase.ts                 # Firebase client SDK init
+│   ├── firebase-admin.ts           # Firebase Admin SDK init (used by API routes)
 │   ├── firestore.ts                # Firestore types + helper functions
 │   ├── scoring.ts                  # Scoring logic (3/2/1/0 points)
 │   └── utils.ts                    # shadcn cn() utility
@@ -316,15 +323,18 @@ Define this before launch so Cloud Functions implement it correctly.
 │   ├── seed.sh                     # Convenience wrapper — runs both seed scripts from project root
 │   ├── seed-matches.ts             # Seed /matches from fixtures JSON
 │   ├── seed-rankings.ts            # Seed /rankings/current from rankings JSON
-│   └── set-admin.ts                # Grant admin custom claim to a user by email
+│   ├── set-admin.ts                # Grant admin custom claim to a user by email
+│   ├── export-db.ts                # Export all Firestore collections/subcollections to timestamped JSON
+│   └── repair-scores.ts            # Recalculate each user's totalScore from prediction pointsEarned; updates users + triggers leaderboard rebuild
 │
 ├── functions/                      # Firebase Cloud Functions (v2)
 │   ├── src/
 │   │   ├── index.ts                # Exports all functions
 │   │   ├── admin.ts                # Admin SDK init
-│   │   ├── scoreMatch.ts           # Triggered on result write — scores predictions
+│   │   ├── leaderboard.ts          # Shared rebuildLeaderboard() — reads all users, writes /leaderboard/current
+│   │   ├── scoreMatch.ts           # Triggered on result write — scores predictions + calls rebuildLeaderboard()
 │   │   ├── updateMatchStatus.ts    # Scheduled: lock matches at kickoff time
-│   │   └── updateLeaderboard.ts    # Rebuild /leaderboard document after scoring
+│   │   └── updateLeaderboard.ts    # Fallback trigger on users/{userId} — delegates to rebuildLeaderboard()
 │   ├── tsconfig.json
 │   └── package.json
 │
@@ -347,6 +357,17 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 
 # App URL (for magic link redirects)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Firebase Admin SDK — service account JSON (used by API routes, not Cloud Functions)
+# Paste the full JSON content of your service-account.json as a single line
+FIREBASE_SERVICE_ACCOUNT_KEY=
+
+# Resend API key — for sending custom magic link emails
+RESEND_API_KEY=
+
+# Firebase Auth emulator host (local dev only — omit in production)
+# When set, firebase-admin.ts initializes without credentials (emulator ignores them)
+FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
 
 # football-data.org API key (used by Cloud Function CF-2 to fetch match results)
 # Get a free key at https://www.football-data.org/client/register
@@ -434,8 +455,9 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 | A-4 | `app/onboarding/page.tsx` + `OnboardingForm.tsx` | [x] | Nickname input (max 24), `setDisplayName` → redirects to / |
 | A-5 | `proxy.ts` — route protection (replaces deprecated `middleware.ts`) | [x] | Optimistic cookie check; redirects unauthenticated to `/login` |
 | A-6 | `components/layout/ProtectedRoute.tsx` | [x] | Redirects unauthed → /login, no displayName → /onboarding; shows loader while Firebase resolves |
-| A-7 | User document created in Firestore on first login | [x] | Handled inside `confirmMagicLink` in `AuthContext.tsx` |
-| A-8 | Duplicate-account guard on login | [x] | `LoginForm` calls `getUserByEmail` before sending magic link; if email not found → `confirm_new` state shows amber warning + "Soy nuevo, continuar" / "Probar con otro correo"; returning users with correct email see zero friction |
+| A-7 | User document created in Firestore on first login | [x] | Written in `setDisplayName` (called from `OnboardingForm`). Writes `uid`, `email`, `photoURL`, `displayName` with `merge: true` — `totalScore` is omitted and managed by Cloud Functions via `FieldValue.increment` |
+| A-9 | `signInLinkDEV` on `AuthContext` — dev-only magic link passthrough | [x] | `sendMagicLink` reads the `link` field from the `send-magic-link` API response (only returned by the emulator); stores it in `signInLinkDEV` state. Consumed by dev UI to skip email and click the link directly in the browser |
+| A-8 | Duplicate-account guard on login | [x] | `LoginForm` calls `getUserByEmail` before sending magic link; if email not found → `confirm_new` state shows amber warning + "Soy nuevo, continuar" / "Probar con otro correo"; returning users with correct email see zero friction. `getUserByEmail` calls `/api/auth/check-email` (Admin SDK) — direct Firestore queries are blocked for unauthenticated users, and the deprecated `fetchSignInMethodsForEmail` client API silently returns empty for passwordless users |
 
 ---
 
@@ -443,7 +465,7 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| D-1 | `lib/firestore.ts` — helper functions | [x] | getMatch, getMatches, getPrediction, setPrediction, getUserPredictions, setMatchResult, getLeaderboard, getUserByEmail; Match type includes optional `venue` and `city` fields; `getUserByEmail` uses `fetchSignInMethodsForEmail` (Firebase Auth) rather than a Firestore query — Firestore denies `list` ops for unauthenticated users and the login page runs before auth |
+| D-1 | `lib/firestore.ts` — helper functions | [x] | getMatch, getMatches, getPrediction, setPrediction, getUserPredictions, setMatchResult, getLeaderboard, getUserByEmail; Match type includes optional `venue` and `city` fields; `getUserByEmail` fetches `/api/auth/check-email` (server-side Admin SDK) — direct Firestore reads are blocked for unauthenticated users and the deprecated `fetchSignInMethodsForEmail` always returned empty for email-link users; `setMatchResult` accepts `matchEnded: boolean` and sets status to `"finished"` or `"locked"` accordingly |
 | D-2 | `lib/scoring.ts` — scoring logic | [x] | `calculatePoints(prediction, result): number` |
 | D-3 | `hooks/useMatches.ts` — TanStack Query | [x] | `useMatches(phase?)` + `useMatch(matchId)` |
 | D-4 | `hooks/usePredictions.ts` — user predictions | [x] | `usePrediction(userId, matchId)` + `useSetPrediction(userId, matchId)`; on save invalidates `["predictions", userId]` (parent key) so both the per-match and bulk queries refetch |
@@ -459,10 +481,10 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| M-1 | `components/matches/MatchCard.tsx` | [x] | Teams, flags, kickoff (local TZ), status badge, links to detail; shows user's predicted score in green pill or "Sin predicción" in red if none; saves scroll position to `sessionStorage["scroll:matches"]` on click; accepts `highlighted` prop — green bg for 4 s then fades over 1 s via `transition-colors duration-1000` |
+| M-1 | `components/matches/MatchCard.tsx` | [x] | Outer `<div>` wraps a `<Link>` (teams, score, badge, time — navigates to detail) and a sibling prediction `<div>` (not inside the link). Prediction area: upcoming + no prediction → blue "Predecir" button opens inline form (two inputs + Guardar/Cancelar); upcoming + prediction exists → green score pill + "Editar"; locked/finished + prediction → green pill only; locked/finished + no prediction → "Sin predicción". Saves scroll position to `sessionStorage["scroll:matches"]` on link click; `highlighted` prop animates green bg for 4 s via `transition-colors duration-1000`. Accepts `userId` prop (required for mutation). |
 | M-2 | `components/matches/MatchList.tsx` | [x] | Grouped by phase, phase filter pills; fetches all user predictions once (`useUserPredictions`) and passes each to its card; on mount reads `sessionStorage["scroll:matches"]` (restores position via double-rAF) and `sessionStorage["highlight:match"]` (passes `highlighted` to the matching card) |
 | M-3 | `app/matches/page.tsx` | [x] | ProtectedRoute + MatchList |
-| M-4 | `components/matches/PredictionForm.tsx` | [x] | 2 number inputs (default 0, not empty), Zod validation, auto-disable when locked/finished, pre-fills existing prediction; on save success writes `matchId` to `sessionStorage["highlight:match"]` so MatchList highlights the card on return |
+| M-4 | `components/matches/PredictionForm.tsx` | [x] | 2 number inputs (default 0, not empty), Zod validation, auto-disable when locked/finished, pre-fills existing prediction; on save success writes `matchId` to `sessionStorage["highlight:match"]` so MatchList highlights the card on return. For locked/finished matches with no prediction (query resolved, `existing` is null) renders "Sin predicción" early — avoids showing a misleading 0–0 disabled form |
 | M-5 | `app/matches/[matchId]/page.tsx` | [x] | Async params; MatchDetail client component: form if upcoming, result + points if finished |
 
 ---
@@ -498,9 +520,9 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [x] | `onDocumentUpdated` on `/matches/{matchId}`; scores all predictions when status → "finished"; increments user totalScore |
+| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [x] | `onDocumentUpdated` on `/matches/{matchId}`; scores all predictions when status → "finished"; increments user `totalScore` via `FieldValue.increment`; directly calls `rebuildLeaderboard()` after `batch.commit()` to guarantee leaderboard sync without relying on the trigger chain |
 | CF-2 | `functions/src/updateMatchStatus.ts` — scheduled every 5 min | [x] | Locks upcoming→locked at kickoff; fetches results from football-data.org (115 min cutoff); sets status→finished + result |
-| CF-3 | `functions/src/updateLeaderboard.ts` — rebuild leaderboard doc | [x] | `onDocumentUpdated` on `/users/{userId}`; rebuilds `/leaderboard/current` sorted by totalScore |
+| CF-3 | `functions/src/updateLeaderboard.ts` — rebuild leaderboard doc | [x] | `onDocumentUpdated` on `/users/{userId}`; fallback for non-scoring user updates (e.g. display name change); delegates to shared `rebuildLeaderboard()` in `leaderboard.ts` |
 | CF-4 | Deploy Cloud Functions to Firebase | [ ] | `firebase deploy --only functions` |
 
 ---
@@ -539,7 +561,7 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 | I-4 | Show rules in Spanish | Display the scoring rules somewhere accessible. Options: (a) a "?" or "Reglas" button in the Navbar/Inicio tab that opens a modal; (b) a collapsible section at the bottom of the Inicio page; (c) a dedicated `/rules` page linked from the footer. Modal approach keeps it lightweight and doesn't require a new route. |
 | I-5 | Extra time & penalty handling | Clarify scoring policy: does a 1–0 result at 90 min that ends 1–1 after extra time score as 1–1 or 1–0? What about a penalty shootout — does the scoreline freeze at the 90+ET score or include a "winner" bonus? Decision needed before the knockout rounds begin. football-data.org provides `score.regularTime`, `score.extraTime`, and `score.penalties` separately, so we can implement whichever policy is chosen. |
 | I-6 | Match booster | Allow each user to apply 1 booster per day to a single match, doubling the points earned for that prediction. Requires: a `booster` field on the prediction doc, a daily-limit check (server-side Cloud Function or Firestore rule), and UI to activate/deactivate before kickoff. |
-| I-7 | Live result partial-update safety | Investigate what happens when an admin sets a partial result (e.g. 1–0 at half time) via `setMatchResult`. Currently the function writes `status: "finished"` and computes points immediately — a partial score would incorrectly finalise the match and award wrong points. Consider adding a separate "in progress score" field distinct from the official result, or gating `setMatchResult` so it only marks `finished` when explicitly confirmed. |
+| I-7 | Live result partial-update safety | `setMatchResult` now accepts `matchEnded: boolean` and sets `status: "finished"` or `status: "locked"` accordingly — so an in-progress score can be saved without triggering the scoring Cloud Function (which only fires on `"finished"`). Admin UI needs to expose this distinction with a "Partido terminado" checkbox. |
 | I-8 | Admin result list stale after update | After submitting a result in the admin area, the match dropdown list does not reactively update — the green checkmark icon does not appear on the just-updated match until the page is refreshed. Fix by invalidating or optimistically updating the relevant React Query cache entry after a successful `setMatchResult` call. |
 
 ---
@@ -628,3 +650,5 @@ Used to translate `home_team`/`away_team` in the fixtures JSON. Placeholder valu
 - **Knockout draws:** Predictions are scored based on the 90-minute result only. Extra time and penalties are ignored for scoring purposes. This must be communicated clearly in the UI.
 - **Timezones:** All `kickoffAt` timestamps stored in UTC. Displayed in the user's local timezone using `Intl.DateTimeFormat`.
 - **Only magic link auth is supported.** No OAuth providers (Google, Facebook) — keeps the auth surface minimal and avoids third-party app setup.
+- **Pre-auth Firestore reads must go through an API route.** The `users` collection requires `request.auth != null`. Any check that runs before the user is authenticated (e.g. the login page email lookup) must call a Next.js API route that uses the Firebase Admin SDK, which bypasses security rules.
+- **`fetchSignInMethodsForEmail` is broken for passwordless users.** The Firebase client SDK's `fetchSignInMethodsForEmail` always returns an empty array for email-link users — it cannot be used to check whether an account exists. Use `adminAuth.getUserByEmail()` server-side instead.
