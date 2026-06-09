@@ -12,8 +12,7 @@ import {
   type QueryConstraint,
   type Timestamp,
 } from "firebase/firestore";
-import { fetchSignInMethodsForEmail } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 
 export interface Match {
   matchId: string;
@@ -126,6 +125,6 @@ export async function getLeaderboard(): Promise<Leaderboard | null> {
 }
 
 export async function getUserByEmail(email: string): Promise<boolean> {
-  const methods = await fetchSignInMethodsForEmail(auth, email);
-  return methods.length > 0;
+  const snap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
+  return !snap.empty;
 }
