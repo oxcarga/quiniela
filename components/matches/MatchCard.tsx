@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 import { useSetPrediction } from "@/hooks/usePredictions";
+import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
 
 const STATUS_BADGE: Record<Match["status"], { label: string; className: string }> = {
   upcoming: { label: "PRÓXIMAMENTE", className: "bg-blue-100 text-blue-700" },
@@ -98,6 +99,11 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <div className="flex w-28 flex-col items-center gap-1">
             <span className="text-3xl">{match.homeFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
+            {rankingsByName[match.homeTeam as keyof typeof rankingsByName] && (
+              <span className="text-xs text-zinc-400">
+                #{rankingsByName[match.homeTeam as keyof typeof rankingsByName].ranking}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col items-center gap-1">
@@ -118,6 +124,11 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <div className="flex w-28 flex-col items-center gap-1">
             <span className="text-3xl">{match.awayFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
+            {rankingsByName[match.awayTeam as keyof typeof rankingsByName] && (
+              <span className="text-xs text-zinc-400">
+                #{rankingsByName[match.awayTeam as keyof typeof rankingsByName].ranking}
+              </span>
+            )}
           </div>
         </div>
       </Link>
