@@ -520,7 +520,7 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [x] | `onDocumentUpdated` on `/matches/{matchId}`; scores all predictions when status → "finished"; increments user `totalScore` via `FieldValue.increment`; directly calls `rebuildLeaderboard()` after `batch.commit()` to guarantee leaderboard sync without relying on the trigger chain |
+| CF-1 | `functions/src/scoreMatch.ts` — triggered on result write | [x] | `onDocumentUpdated` on `/matches/{matchId}`; scores all predictions when status → "finished"; increments user `totalScore` via `FieldValue.increment`; directly calls `rebuildLeaderboard()` after `batch.commit()` to guarantee leaderboard sync without relying on the trigger chain. Re-scoring supported: if an admin corrects a result after finalization (status stays "finished" but `result` changes), the function re-fires, computes a delta (`newPoints − previousPoints`), and adjusts `totalScore` accordingly — avoiding double-counting |
 | CF-2 | `functions/src/updateMatchStatus.ts` — scheduled every 5 min | [x] | Locks upcoming→locked at kickoff; fetches results from football-data.org (115 min cutoff); sets status→finished + result |
 | CF-3 | `functions/src/updateLeaderboard.ts` — rebuild leaderboard doc | [x] | `onDocumentUpdated` on `/users/{userId}`; fallback for non-scoring user updates (e.g. display name change); delegates to shared `rebuildLeaderboard()` in `leaderboard.ts` |
 | CF-4 | Deploy Cloud Functions to Firebase | [ ] | `firebase deploy --only functions` |
@@ -564,6 +564,7 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 | I-7 | Live result partial-update safety | `setMatchResult` now accepts `matchEnded: boolean` and sets `status: "finished"` or `status: "locked"` accordingly — so an in-progress score can be saved without triggering the scoring Cloud Function (which only fires on `"finished"`). Admin UI needs to expose this distinction with a "Partido terminado" checkbox. |
 | I-8 | Admin result list stale after update | After submitting a result in the admin area, the match dropdown list does not reactively update — the green checkmark icon does not appear on the just-updated match until the page is refreshed. Fix by invalidating or optimistically updating the relevant React Query cache entry after a successful `setMatchResult` call. |
 | I-9 | Edit display name from `/profile` | Allow users to update their display name directly from the profile page, without having to go through the initial setup flow. | ✅
+| I-10 | Re-score predictions when admin corrects a finished match result | `scoreMatch` used to guard `before.status === "finished"` → early return, so any result correction after finalization was silently ignored. Fixed: the guard now compares `before.result` vs `after.result`; if they differ the function re-scores using a delta (`newPoints − previousPoints`) to avoid double-counting `totalScore`. | ✅
 
 ---
 

@@ -25,7 +25,12 @@ export const scoreMatch = onDocumentUpdated(
     const before = event.data?.before.data();
     const after = event.data?.after.data();
 
-    if (!after || after.status !== "finished" || before?.status === "finished") return;
+    if (!after || after.status !== "finished") return;
+
+    // Skip if already finished and the result hasn't changed (idempotency guard)
+    const resultChanged =
+      JSON.stringify(before?.result) !== JSON.stringify(after.result);
+    if (before?.status === "finished" && !resultChanged) return;
 
     const { matchId, result } = after as {
       matchId: string;
@@ -47,15 +52,21 @@ export const scoreMatch = onDocumentUpdated(
       const pred = predDoc.data();
       if (typeof pred.predictedHomeGoals !== "number") continue;
 
-      const points = calculatePoints(
+      const newPoints = calculatePoints(
         { home: pred.predictedHomeGoals, away: pred.predictedAwayGoals },
         { home: result.homeGoals, away: result.awayGoals }
       );
 
-      batch.update(predDoc.ref, { pointsEarned: points });
-      batch.update(db.collection("users").doc(pred.userId as string), {
-        totalScore: FieldValue.increment(points),
-      });
+      // When re-scoring a finished match, adjust by the delta to avoid double-counting
+      const previousPoints = typeof pred.pointsEarned === "number" ? pred.pointsEarned : 0;
+      const delta = newPoints - previousPoints;
+
+      batch.update(predDoc.ref, { pointsEarned: newPoints });
+      if (delta !== 0) {
+        batch.update(db.collection("users").doc(pred.userId as string), {
+          totalScore: FieldValue.increment(delta),
+        });
+      }
     }
 
     await batch.commit();
