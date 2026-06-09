@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPredictions } from "@/hooks/usePredictions";
@@ -78,9 +79,35 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
 }
 
 function ProfileContent() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, setDisplayName } = useAuth();
   const { data: predictions, isLoading: loadingPreds } = useUserPredictions(user?.uid ?? null);
   const { data: matches, isLoading: loadingMatches } = useMatches();
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [nameSaving, setNameSaving] = useState(false);
+
+  function openNameEdit() {
+    setNameInput(user?.displayName ?? "");
+    setNameError(null);
+    setEditingName(true);
+  }
+
+  async function saveDisplayName(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = nameInput.trim();
+    if (!trimmed) { setNameError("El nombre no puede estar vacío."); return; }
+    setNameSaving(true);
+    try {
+      await setDisplayName(trimmed);
+      setEditingName(false);
+    } catch {
+      setNameError("Error guardando. Intenta de nuevo.");
+    } finally {
+      setNameSaving(false);
+    }
+  }
 
   const isLoading = loadingPreds || loadingMatches;
 
@@ -109,13 +136,54 @@ function ProfileContent() {
             ? <img src={user.photoURL} alt="" className="h-14 w-14 rounded-full object-cover" />
             : initials}
         </div>
-        <div className="flex-1">
-          <p className="text-lg font-bold">{user?.displayName}</p>
-          <p className="text-sm text-zinc-500">{user?.email}</p>
+        <div className="flex-1 min-w-0">
+          {editingName ? (
+            <form onSubmit={saveDisplayName} className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <input
+                  autoFocus
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  disabled={nameSaving}
+                  className="min-w-0 flex-1 rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm font-bold dark:border-zinc-700 dark:bg-zinc-800"
+                />
+                <button
+                  type="submit"
+                  disabled={nameSaving}
+                  className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                >
+                  {nameSaving ? "…" : "Guardar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingName(false)}
+                  disabled={nameSaving}
+                  className="rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                >
+                  Cancelar
+                </button>
+              </div>
+              {nameError && <p className="text-xs text-red-500">{nameError}</p>}
+            </form>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-bold truncate">{user?.displayName}</p>
+              <button
+                onClick={openNameEdit}
+                aria-label="Editar nombre"
+                className="cursor-pointer text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 shrink-0"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">
+                  <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L2.317 11.21a1.75 1.75 0 0 0-.5 1.018l-.325 2.6a.75.75 0 0 0 .83.83l2.6-.325a1.75 1.75 0 0 0 1.018-.5l8.697-8.696a1.75 1.75 0 0 0 0-2.474l-.149-.15Z" />
+                </svg>
+              </button>
+            </div>
+          )}
+          <p className="text-sm text-zinc-500 truncate">{user?.email}</p>
         </div>
         <button
           onClick={signOut}
-          className="rounded-full border border-zinc-200 px-3 py-1 text-sm text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="rounded-full border border-zinc-200 px-3 py-1 text-sm text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 shrink-0"
         >
           Cerrar sesión
         </button>

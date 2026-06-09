@@ -563,6 +563,7 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 | I-6 | Match booster | Allow each user to apply 1 booster per day to a single match, doubling the points earned for that prediction. Requires: a `booster` field on the prediction doc, a daily-limit check (server-side Cloud Function or Firestore rule), and UI to activate/deactivate before kickoff. |
 | I-7 | Live result partial-update safety | `setMatchResult` now accepts `matchEnded: boolean` and sets `status: "finished"` or `status: "locked"` accordingly — so an in-progress score can be saved without triggering the scoring Cloud Function (which only fires on `"finished"`). Admin UI needs to expose this distinction with a "Partido terminado" checkbox. |
 | I-8 | Admin result list stale after update | After submitting a result in the admin area, the match dropdown list does not reactively update — the green checkmark icon does not appear on the just-updated match until the page is refreshed. Fix by invalidating or optimistically updating the relevant React Query cache entry after a successful `setMatchResult` call. |
+| I-9 | Edit display name from `/profile` | Allow users to update their display name directly from the profile page, without having to go through the initial setup flow. | ✅
 
 ---
 
