@@ -125,6 +125,12 @@ export async function getLeaderboard(): Promise<Leaderboard | null> {
 }
 
 export async function getUserByEmail(email: string): Promise<boolean> {
-  const snap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
-  return !snap.empty;
+  const res = await fetch("/api/auth/check-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) throw new Error("Error verificando el correo");
+  const { exists } = await res.json();
+  return exists as boolean;
 }
