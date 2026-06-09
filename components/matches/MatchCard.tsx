@@ -167,11 +167,20 @@ export default function MatchCard({ match, prediction, highlighted = false, user
         ) : prediction ? (
           <div className="flex flex-col items-center justify-center gap-2">
             <span className="px-3 py-0.5 text-sm font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
-              Tu predicción: 
+              Tu predicción:
             </span>
             <span className="rounded-full bg-green-50 px-3 py-0.5 text-lg font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
               {prediction.predictedHomeGoals} – {prediction.predictedAwayGoals}
             </span>
+            {effectiveStatus === "finished" && (
+              <span className={`rounded-full px-3 py-0.5 text-sm font-semibold tabular-nums ${
+                prediction.pointsEarned
+                  ? "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                  : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+              }`}>
+                {prediction.pointsEarned != null ? `+${prediction.pointsEarned} pts` : "0 pts"}
+              </span>
+            )}
             {effectiveStatus === "upcoming" && (
               <button
                 onClick={openForm}
