@@ -10,6 +10,7 @@
     "func:build": "cd functions && npm run build",
     "func:build:watch": "cd functions && npm run build:watch",
     "func:shell": "firebase functions:shell",
+    "func:deploy": "cd functions && npm run deploy",
     "seed": "FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/seed-matches.ts",
     "lint": "eslint"
   },
