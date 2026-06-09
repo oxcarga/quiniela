@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { useMatches } from "@/hooks/useMatches";
 import { setMatchResult } from "@/lib/firestore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const schema = z.object({
   homeGoals: z.number().int().min(0),
@@ -27,6 +28,7 @@ function AdminContent() {
   const [error, setError]               = useState<string | null>(null);
   const [submitting, setSubmitting]     = useState(false);
   const [successId, setSuccessId]       = useState<string | null>(null);
+  const queryClient                     = useQueryClient();
 
   // Check admin custom claim
   useEffect(() => {
@@ -83,6 +85,8 @@ function AdminContent() {
     setSubmitting(true);
     try {
       await setMatchResult(selectedId, parsed.data.homeGoals, parsed.data.awayGoals, matchEnded);
+      // force sync the matches data
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
       setSuccessId(selectedId);
       setSelectedId("");
       setHomeGoals(0);
