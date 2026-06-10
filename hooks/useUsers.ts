@@ -23,6 +23,7 @@ export function useUsers() {
               displayName: u.displayName as string,
               photoURL: (u.photoURL as string | null) ?? null,
               totalScore: (u.totalScore as number) ?? 0,
+              predictionsCount: (u.predictionsCount as number) ?? 0,
               position: i + 1,
             };
           })
