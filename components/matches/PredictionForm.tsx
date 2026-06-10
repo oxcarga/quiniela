@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { usePrediction, useSetPrediction } from "@/hooks/usePredictions";
+import { usePrediction, useSetPrediction, useToggleBooster } from "@/hooks/usePredictions";
 import type { Match } from "@/lib/firestore";
 
 const schema = z.object({
@@ -20,11 +20,26 @@ interface Props {
 export default function PredictionForm({ match, userId }: Props) {
   const { data: existing, isLoading } = usePrediction(userId, match.matchId);
   const { mutate, isPending } = useSetPrediction(userId, match.matchId);
+  const { mutate: toggleBoost, isPending: isBoosting } = useToggleBooster(
+    userId,
+    match.matchId
+  );
 
   const [home, setHome] = useState("0");
   const [away, setAway] = useState("0");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [boostError, setBoostError] = useState<string | null>(null);
+
+  function handleToggleBoost() {
+    setBoostError(null);
+    toggleBoost(!existing?.boosted, {
+      onError: (err) =>
+        setBoostError(
+          err instanceof Error ? err.message : "No se pudo aplicar el refuerzo."
+        ),
+    });
+  }
 
   useEffect(() => {
     if (existing) {
@@ -101,6 +116,34 @@ export default function PredictionForm({ match, userId }: Props) {
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? "Guardando…" : existing ? "Actualizar predicción" : "Guardar predicción"}
         </Button>
+      )}
+
+      {/* Match booster — only once a prediction exists and the match is open */}
+      {!isLocked && existing && (
+        <div className="flex flex-col items-center gap-1">
+          <button
+            type="button"
+            onClick={handleToggleBoost}
+            disabled={isBoosting}
+            className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors disabled:opacity-50 ${
+              existing.boosted
+                ? "bg-amber-500 text-white hover:bg-amber-600"
+                : "border border-amber-400 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
+            }`}
+          >
+            {isBoosting
+              ? "…"
+              : existing.boosted
+                ? "⚡ Refuerzo activo (×2) — toca para quitar"
+                : "⚡ Reforzar este partido (×2)"}
+          </button>
+          <p className="text-center text-xs text-zinc-400">
+            Un refuerzo por día. Duplica los puntos de este partido.
+          </p>
+          {boostError && (
+            <p className="text-center text-xs text-red-500">{boostError}</p>
+          )}
+        </div>
       )}
     </form>
   );

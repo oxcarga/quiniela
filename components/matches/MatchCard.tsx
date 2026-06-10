@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
-import { useSetPrediction } from "@/hooks/usePredictions";
+import { useSetPrediction, useToggleBooster } from "@/hooks/usePredictions";
 import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
 import FormDots from "./FormDots";
 
@@ -35,8 +35,23 @@ export default function MatchCard({ match, prediction, highlighted = false, user
   const [home, setHome] = useState("0");
   const [away, setAway] = useState("0");
   const [formError, setFormError] = useState<string | null>(null);
+  const [boostError, setBoostError] = useState<string | null>(null);
 
   const { mutate, isPending } = useSetPrediction(userId, match.matchId);
+  const { mutate: toggleBoost, isPending: isBoosting } = useToggleBooster(
+    userId,
+    match.matchId
+  );
+
+  function handleToggleBoost() {
+    setBoostError(null);
+    toggleBoost(!prediction?.boosted, {
+      onError: (err) =>
+        setBoostError(
+          err instanceof Error ? err.message : "No se pudo aplicar el refuerzo."
+        ),
+    });
+  }
 
   useEffect(() => {
     if (!highlighted) return;
@@ -183,8 +198,13 @@ export default function MatchCard({ match, prediction, highlighted = false, user
             <span className="px-3 py-0.5 text-sm font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
               Tu predicción:
             </span>
-            <span className="rounded-full bg-green-50 px-3 py-0.5 text-lg font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
+            <span className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-0.5 text-lg font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
               {prediction.predictedHomeGoals} – {prediction.predictedAwayGoals}
+              {prediction.boosted && (
+                <span className="rounded-full bg-amber-100 px-1.5 text-xs font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+                  ⚡×2
+                </span>
+              )}
             </span>
             {effectiveStatus === "finished" && (
               <span className={`rounded-full px-3 py-0.5 text-sm font-semibold tabular-nums ${
@@ -193,15 +213,34 @@ export default function MatchCard({ match, prediction, highlighted = false, user
                   : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
               }`}>
                 {prediction.pointsEarned != null ? `+${prediction.pointsEarned} pts` : "0 pts"}
+                {prediction.boosted && prediction.pointsEarned ? " (×2)" : ""}
               </span>
             )}
             {effectiveStatus === "upcoming" && (
-              <button
-                onClick={openForm}
-                className="cursor-pointer text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
-              >
-                Editar
-              </button>
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={openForm}
+                    className="cursor-pointer text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={handleToggleBoost}
+                    disabled={isBoosting}
+                    className={`cursor-pointer rounded-full px-2 py-0.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+                      prediction.boosted
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "border border-amber-400 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
+                    }`}
+                  >
+                    {isBoosting ? "…" : prediction.boosted ? "⚡ Refuerzo activo" : "⚡ Reforzar ×2"}
+                  </button>
+                </div>
+                {boostError && (
+                  <p className="text-center text-xs text-red-500">{boostError}</p>
+                )}
+              </div>
             )}
           </div>
         ) : effectiveStatus === "upcoming" ? (

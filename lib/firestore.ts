@@ -12,7 +12,8 @@ import {
   type QueryConstraint,
   type Timestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { httpsCallable } from "firebase/functions";
+import { db, functions } from "@/lib/firebase";
 
 export interface Match {
   matchId: string;
@@ -40,6 +41,7 @@ export interface Prediction {
   predictedAwayGoals: number;
   submittedAt: Timestamp;
   pointsEarned: number | null;
+  boosted?: boolean;
 }
 
 export interface LeaderboardEntry {
@@ -95,14 +97,20 @@ export async function setPrediction(
   predictedHomeGoals: number,
   predictedAwayGoals: number
 ): Promise<void> {
-  await setDoc(doc(db, "predictions", userId, "matches", matchId), {
-    userId,
-    matchId,
-    predictedHomeGoals,
-    predictedAwayGoals,
-    submittedAt: serverTimestamp(),
-    pointsEarned: null,
-  });
+  // merge: true preserves the `boosted` flag (managed by the toggleBooster
+  // Cloud Function) across prediction edits
+  await setDoc(
+    doc(db, "predictions", userId, "matches", matchId),
+    {
+      userId,
+      matchId,
+      predictedHomeGoals,
+      predictedAwayGoals,
+      submittedAt: serverTimestamp(),
+      pointsEarned: null,
+    },
+    { merge: true }
+  );
 }
 
 export async function setMatchResult(
@@ -123,6 +131,17 @@ export async function getLeaderboard(): Promise<Leaderboard | null> {
   const snap = await getDoc(doc(db, "leaderboard", "current"));
   if (!snap.exists()) return null;
   return snap.data() as Leaderboard;
+}
+
+export async function toggleBooster(
+  matchId: string,
+  boosted: boolean
+): Promise<void> {
+  const callable = httpsCallable<
+    { matchId: string; boosted: boolean },
+    { boosted: boolean }
+  >(functions, "toggleBooster");
+  await callable({ matchId, boosted });
 }
 
 export async function getUserByEmail(email: string): Promise<boolean> {

@@ -5,7 +5,7 @@
  *   FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/seed-matches.ts
  *
  * Usage (against production — requires service account):
- *   GOOGLE_APPLICATION_CREDENTIALS=./service-account.json npx tsx scripts/seed-matches.ts
+ *   GOOGLE_APPLICATION_CREDENTIALS=./functions/service-account.json npx tsx scripts/seed-matches.ts
  *
  * Idempotent: re-running overwrites existing docs.
  */

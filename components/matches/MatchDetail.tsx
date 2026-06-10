@@ -90,13 +90,19 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
         {match.status === "finished" && prediction && (
           <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-center dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-sm text-zinc-500">Predijiste</p>
-            <p className="text-2xl font-bold tabular-nums">
+            <p className="flex items-center justify-center gap-2 text-2xl font-bold tabular-nums">
               {prediction.predictedHomeGoals} – {prediction.predictedAwayGoals}
+              {prediction.boosted && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+                  ⚡×2
+                </span>
+              )}
             </p>
             <p className="mt-2 text-lg font-semibold">
               {prediction.pointsEarned !== null ? (
                 <span className={prediction.pointsEarned > 0 ? "text-green-600" : "text-zinc-400"}>
                   {prediction.pointsEarned} {prediction.pointsEarned === 1 ? "punto" : "puntos"}
+                  {prediction.boosted && prediction.pointsEarned > 0 ? " (reforzado)" : ""}
                 </span>
               ) : (
                 <span className="text-zinc-400 text-sm">Calculando puntos…</span>

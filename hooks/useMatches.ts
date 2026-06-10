@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { getMatch, getMatches, type Match } from "@/lib/firestore";
 
-export function useMatches(phase?: Match["phase"]) {
+export function useMatches(
+  phase?: Match["phase"],
+  options?: { refetchOnMount?: boolean | "always"; staleTime?: number }
+) {
   return useQuery({
     queryKey: ["matches", phase ?? "all"],
     queryFn: () => getMatches(phase),
+    ...options,
   });
 }
 

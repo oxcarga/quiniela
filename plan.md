@@ -560,12 +560,14 @@ Progress legend: `[x]` done · `[~]` scaffolded / stub only · `[ ]` not started
 | I-3 | Show FIFA team rankings on `/matches` | We currently have ranking information in `data/fifa_world_cup_2026_group_fixtures.json`. Display each team's current standing next to their name in the match card. | ✅
 | I-4 | Show rules in Spanish | Display the scoring rules somewhere accessible. Options: (a) a "?" or "Reglas" button in the Navbar/Inicio tab that opens a modal; (b) a collapsible section at the bottom of the Inicio page; (c) a dedicated `/rules` page linked from the footer. Modal approach keeps it lightweight and doesn't require a new route. | ✅
 | I-5 | Extra time & penalty handling | Clarify scoring policy: does a 1–1 result at 90 min that ends 1–2 after extra time score as 1–1 or 1–2? Scores as 1-2. The final result after 90+30 is the final result the predictions will be checked against.  What about a penalty shootout — does the scoreline freeze at the 90+ET score or include a "winner" bonus? No winner bonnus. regukar time + ET, and that's it. | ✅
-| I-6 | Match booster | Allow each user to apply 1 booster per day to a single match, doubling the points earned for that prediction. Requires: a `booster` field on the prediction doc, a daily-limit check (server-side Cloud Function or Firestore rule), and UI to activate/deactivate before kickoff. |
+| I-6 | Match booster | Allow each user to apply 1 booster per day to a single match, doubling the points earned for that prediction. **Implemented:** `boosted` flag on the prediction doc (read by `scoreMatch` → `basePoints × 2`). Daily limit = one boost per **match kickoff-day** (America/Mexico_City), enforced by the `toggleBooster` callable Cloud Function in a transaction against a per-day registry doc `/users/{uid}/boosterDays/{YYYY-MM-DD}`. Firestore rules prevent clients from setting/flipping `boosted` (callable uses admin SDK); `setPrediction` switched to `{ merge: true }` so edits preserve the flag. UI: ⚡ toggle in `MatchCard` + `PredictionForm`, only before kickoff once a prediction exists, with `×2` indicators on boosted predictions/points. Needs `firebase deploy --only functions,firestore:rules`. | ✅ |
 | I-7 | Live result partial-update safety | `setMatchResult` now accepts `matchEnded: boolean` and sets `status: "finished"` or `status: "locked"` accordingly — so an in-progress score can be saved without triggering the scoring Cloud Function (which only fires on `"finished"`). Admin UI needs to expose this distinction with a "Partido terminado" checkbox. | ✅
 | I-8 | Admin result list stale after update | After submitting a result in the admin area, the match dropdown list does not reactively update — the green checkmark icon does not appear on the just-updated match until the page is refreshed. Fix by invalidating or optimistically updating the relevant React Query cache entry after a successful `setMatchResult` call. | ✅
 | I-9 | Edit display name from `/profile` | Allow users to update their display name directly from the profile page, without having to go through the initial setup flow. | ✅
 | I-10 | Re-score predictions when admin corrects a finished match result | `scoreMatch` used to guard `before.status === "finished"` → early return, so any result correction after finalization was silently ignored. Fixed: the guard now compares `before.result` vs `after.result`; if they differ the function re-scores using a delta (`newPoints − previousPoints`) to avoid double-counting `totalScore`. | ✅
-| I-11 | Groups view inside matches list (table view per group) | ... |
+| I-11 | Groups view inside matches list (table view per group) | Add a "Grupos" view to `/matches` (e.g. a toggle alongside the existing phase filter) that renders the group stage as standings tables — one table per group (A–L). Each table lists the four teams with the classic columns: PJ (played), G (won), E (drawn), P (lost), GF (goals for), GC (goals against), DG (goal difference), Pts (points), sorted by the official FIFA tiebreakers (points → goal difference → goals for). Standings are derived client-side from finished `matches` results (`status === "finished"`), so the table fills in live as the group stage progresses; upcoming matches simply don't contribute yet. Show each team's flag + name (Spanish) and optionally highlight the top two (qualifying) rows. Scope: group phase only — knockout phases keep the existing match-card list. | ⬜ |
+| I-12 | Leaderboard fallback to user list before scoring | When `/leaderboard/current` has no rankings yet (e.g. before any match is scored), the home leaderboard used to show "Aún no hay participantes". **Implemented:** new `hooks/useUsers.ts` subscribes to the `users` collection via `onSnapshot` with `orderBy("displayName", "desc")` and maps each doc into a `LeaderboardEntry` (carrying `totalScore`, default 0; `position` by index). `Leaderboard.tsx` uses `data.rankings` when non-empty, otherwise falls back to this user list; the empty-state message only shows when there are no users at all. **Note:** requires Firestore rules to allow authenticated clients to read the `users` collection. | ✅ |
+| I-13 | Read project ID from `.firebaserc` in scripts | The Firebase project ID (`quiniela-ee895`) was hardcoded in the emulator branch of every admin/seed script. **Implemented:** each script now derives `projectId` once at module load by parsing `.firebaserc` (`projects.default`), resolved relative to the script's own location via `fileURLToPath(import.meta.url)` so it works regardless of cwd. Applied to `scripts/set-admin.ts`, `scripts/seed-rankings.ts`, `scripts/seed-matches.ts`, and `scripts/repair-scores.ts`. Single source of truth — changing the Firebase project only requires editing `.firebaserc`. | ✅ |
 
 ---
 
@@ -655,3 +657,49 @@ Used to translate `home_team`/`away_team` in the fixtures JSON. Placeholder valu
 - **Only magic link auth is supported.** No OAuth providers (Google, Facebook) — keeps the auth surface minimal and avoids third-party app setup.
 - **Pre-auth Firestore reads must go through an API route.** The `users` collection requires `request.auth != null`. Any check that runs before the user is authenticated (e.g. the login page email lookup) must call a Next.js API route that uses the Firebase Admin SDK, which bypasses security rules.
 - **`fetchSignInMethodsForEmail` is broken for passwordless users.** The Firebase client SDK's `fetchSignInMethodsForEmail` always returns an empty array for email-link users — it cannot be used to check whether an account exists. Use `adminAuth.getUserByEmail()` server-side instead.
+
+---
+
+## 16. Form-guide dots widget (MatchCard)
+
+### Context
+
+Each team in `data/fifa_world_ranking_men_by_name.json` carries a `last_results`
+array of its last 5 matches (`"W"` win, `"D"` draw, `"L"` loss). The match list
+already surfaces FIFA ranking per team but nothing about recent form. We add a
+compact "form guide" — 5 colored dots under each team's flag/name/ranking —
+giving users a quick read on how each side is playing before they predict.
+
+Scope: **MatchCard only**. Missing/short data: **pad to 5 slots**, rendering
+absent results as hollow placeholder dots so both teams' rows stay vertically
+aligned.
+
+### Implementation
+
+**New component — `components/matches/FormDots.tsx`:**
+- Props: `{ results?: string[] }` (the team's `last_results`, possibly undefined).
+- Builds a fixed array of 5 slots; fills from `results` (first 5), pads the rest
+  with an empty marker.
+- Renders a `flex items-center gap-1` row of `h-2 w-2 rounded-full` dots.
+- Color map (data-driven `Record`, mirroring `STATUS_BADGE`):
+  - `W` → `bg-green-500` (Victoria)
+  - `D` → `bg-zinc-400` (Empate)
+  - `L` → `bg-red-500` (Derrota)
+  - empty/unknown → `bg-transparent border border-zinc-300 dark:border-zinc-700` (Sin dato)
+- Each dot carries a Spanish `title`/`aria-label` so meaning isn't color-only.
+
+**Wiring — `components/matches/MatchCard.tsx`:**
+- Import `FormDots`.
+- After the ranking `#` span in each team column, add
+  `<FormDots results={rankingsByName[match.homeTeam as keyof typeof rankingsByName]?.last_results} />`
+  and the equivalent for `awayTeam`. Optional chaining handles teams absent from
+  the JSON (renders 5 empty slots). Reuses the existing `rankingsByName[... as
+  keyof typeof rankingsByName]` lookup idiom already in the file.
+
+### Notes
+
+- Dots render in the JSON's array order, left→right. If the source order is
+  newest→oldest and we prefer oldest→newest (typical form-guide convention),
+  reverse the slice — a one-line tweak in `FormDots`.
+- Client-only change; no Next.js API surface touched.
+

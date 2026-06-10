@@ -12,14 +12,28 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId;
+
+      // Booster registry: one doc per match-day, written only by the
+      // toggleBooster Cloud Function (admin SDK). Owner may read.
+      match /boosterDays/{day} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false;
+      }
     }
 
-    // Predictions: authenticated read, own write only before kickoff
+    // Predictions: authenticated read, own write only before kickoff.
+    // The `boosted` flag is managed exclusively by the toggleBooster
+    // Cloud Function — clients may neither set it on create nor change it.
     match /predictions/{userId}/matches/{matchId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null
-                   && request.auth.uid == userId
-                   && request.time < get(/databases/$(database)/documents/matches/$(matchId)).data.kickoffAt;
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.time < get(/databases/$(database)/documents/matches/$(matchId)).data.kickoffAt
+                    && request.resource.data.get('boosted', false) == false;
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.time < get(/databases/$(database)/documents/matches/$(matchId)).data.kickoffAt
+                    && request.resource.data.get('boosted', false) == resource.data.get('boosted', false);
     }
 
     // Leaderboard: public read, written only by Cloud Functions (admin SDK)

@@ -52,10 +52,12 @@ export const scoreMatch = onDocumentUpdated(
       const pred = predDoc.data();
       if (typeof pred.predictedHomeGoals !== "number") continue;
 
-      const newPoints = calculatePoints(
+      const basePoints = calculatePoints(
         { home: pred.predictedHomeGoals, away: pred.predictedAwayGoals },
         { home: result.homeGoals, away: result.awayGoals }
       );
+      // Match booster (I-6): a boosted prediction earns double points
+      const newPoints = pred.boosted === true ? basePoints * 2 : basePoints;
 
       // When re-scoring a finished match, adjust by the delta to avoid double-counting
       const previousPoints = typeof pred.pointsEarned === "number" ? pred.pointsEarned : 0;

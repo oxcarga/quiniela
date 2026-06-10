@@ -7,12 +7,12 @@ import { useUserPredictions } from "@/hooks/usePredictions";
 import { useMatches } from "@/hooks/useMatches";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 
-const POINTS_BADGE: Record<number, { label: string; className: string }> = {
-  3: { label: "3 pts", className: "bg-green-100 text-green-700" },
-  2: { label: "2 pts", className: "bg-emerald-100 text-emerald-700" },
-  1: { label: "1 pt",  className: "bg-yellow-100 text-yellow-700" },
-  0: { label: "0 pts", className: "bg-zinc-100 text-zinc-500" },
-};
+function pointsBadge(points: number, boosted?: boolean): { label: string; className: string } {
+  const label = `${points} ${points === 1 ? "pt" : "pts"}${boosted ? " ⚡" : ""}`;
+  if (points === 0) return { label, className: "bg-zinc-100 text-zinc-500" };
+  if (boosted) return { label, className: "bg-amber-100 text-amber-700" };
+  return { label, className: "bg-green-100 text-green-700" };
+}
 
 function PredictionRow({ prediction, match }: { prediction: Prediction; match: Match }) {
   const effectiveStatus = getEffectiveStatus(match);
@@ -20,10 +20,20 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
   }).format(match.kickoffAt.toDate());
 
-  const badge = prediction.pointsEarned !== null ? POINTS_BADGE[prediction.pointsEarned] : null;
+  const badge = prediction.pointsEarned !== null
+    ? pointsBadge(prediction.pointsEarned, prediction.boosted)
+    : null;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="relative flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+      {prediction.boosted && (
+        <span
+          title="Refuerzo aplicado (×2)"
+          className="absolute left-0 top-0 flex h-5 w-5 items-center justify-center rounded-br-lg rounded-tl-xl bg-amber-100 text-xs text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+        >
+          ⚡
+        </span>
+      )}
       {/* Teams */}
       <div className="flex flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-2 text-sm font-medium">
@@ -55,7 +65,7 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
       )}
 
       {/* Points */}
-      <div className="w-14 text-right">
+      <div className="w-30 text-right">
         {effectiveStatus === "finished" ? (
           badge ? (
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}>
@@ -80,8 +90,15 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
 
 function ProfileContent() {
   const { user, signOut, setDisplayName } = useAuth();
-  const { data: predictions, isLoading: loadingPreds } = useUserPredictions(user?.uid ?? null);
-  const { data: matches, isLoading: loadingMatches } = useMatches();
+  // Always refetch on visit so freshly scored points/results show without a refresh
+  const { data: predictions, isLoading: loadingPreds } = useUserPredictions(
+    user?.uid ?? null,
+    { refetchOnMount: "always", staleTime: 0 }
+  );
+  const { data: matches, isLoading: loadingMatches } = useMatches(undefined, {
+    refetchOnMount: "always",
+    staleTime: 0,
+  });
 
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
