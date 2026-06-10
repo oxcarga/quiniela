@@ -14,10 +14,17 @@
 
 import { initializeApp, cert, applicationDefault, getApps } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { readFileSync } from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+const projectId = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", ".firebaserc"), "utf-8")
+).projects.default as string;
 
 if (!getApps().length) {
   if (process.env.FIRESTORE_EMULATOR_HOST) {
-    initializeApp({ projectId: "quiniela-ee895" });
+    initializeApp({ projectId });
   } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)) });
   } else {

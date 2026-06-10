@@ -10,8 +10,15 @@
  * To remove the admin claim, the user must sign out and back in for the token to refresh.
  */
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { initializeApp, cert, applicationDefault } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
+
+const projectId = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", ".firebaserc"), "utf8")
+).projects.default as string;
 
 const email = process.argv[2];
 if (!email) {
@@ -25,7 +32,7 @@ initializeApp(
   process.env.GOOGLE_APPLICATION_CREDENTIALS
     ? { credential: cert(process.env.GOOGLE_APPLICATION_CREDENTIALS) }
     : isEmulator
-      ? { projectId: "quiniela-ee895" }
+      ? { projectId }
       : { credential: applicationDefault() }
 );
 

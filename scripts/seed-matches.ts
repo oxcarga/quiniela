@@ -13,7 +13,12 @@
 import { initializeApp, cert, applicationDefault } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { readFileSync } from "fs";
-import { resolve } from "path";
+import { resolve, dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+const projectId = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", ".firebaserc"), "utf-8")
+).projects.default as string;
 
 // ── Flag emoji lookup ────────────────────────────────────────────────────────
 
@@ -129,7 +134,7 @@ async function main() {
     process.env.GOOGLE_APPLICATION_CREDENTIALS
       ? { credential: cert(process.env.GOOGLE_APPLICATION_CREDENTIALS) }
       : isEmulator
-        ? { projectId: "quiniela-ee895" }
+        ? { projectId }
         : { credential: applicationDefault() }
   );
 
