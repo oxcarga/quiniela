@@ -5,7 +5,7 @@
  *   FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 npx tsx scripts/set-admin.ts user@example.com
  *
  * Usage (against production — requires service account):
- *   GOOGLE_APPLICATION_CREDENTIALS=./service-account.json npx tsx scripts/set-admin.ts user@example.com
+ *   GOOGLE_APPLICATION_CREDENTIALS=./functions/service-account.json npx tsx scripts/set-admin.ts user@example.com
  *
  * To remove the admin claim, the user must sign out and back in for the token to refresh.
  */
