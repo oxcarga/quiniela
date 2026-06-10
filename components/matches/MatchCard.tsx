@@ -111,7 +111,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <p className="text-xs text-zinc-400">{match.venue}, {match.city}</p>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 gap-10">
+        <div className="flex items-center justify-between px-4 py-3 gap-7">
           <div className="flex w-28 flex-col items-center gap-1">
             <span className="text-3xl">{match.homeFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
