@@ -36,12 +36,16 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
       )}
       {/* Teams */}
       <div className="flex flex-1 flex-col gap-0.5">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <span>{match.homeFlag}</span>
-          <span>{match.homeTeam}</span>
-          <span className="text-zinc-400">vs</span>
-          <span>{match.awayTeam}</span>
-          <span>{match.awayFlag}</span>
+        <div className="flex flex-col sm:flex-row items-left gap-2 text-sm font-medium">
+          <div className="flex gap-2">
+            <span>{match.homeFlag}</span>
+            <span>{match.homeTeam}</span>
+          </div>
+          <span className="px-8 text-zinc-400">vs</span>
+          <div className="flex gap-2">
+            <span>{match.awayFlag}</span>
+            <span>{match.awayTeam}</span>
+          </div>
         </div>
         <span className="text-xs text-zinc-400">{kickoffFormatted}</span>
       </div>
