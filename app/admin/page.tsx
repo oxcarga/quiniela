@@ -6,6 +6,7 @@ import { getIdTokenResult } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
+import UsersTable from "@/components/admin/UsersTable";
 import { useAuth } from "@/context/AuthContext";
 import { useMatches } from "@/hooks/useMatches";
 import { setMatchResult } from "@/lib/firestore";
@@ -185,6 +186,10 @@ function AdminContent() {
           {submitting ? "Guardando…" : "Confirmar resultado"}
         </Button>
       </form>
+
+      <hr className="border-zinc-200 dark:border-zinc-800" />
+
+      <UsersTable enabled={isAdmin === true} />
     </div>
   );
 }
@@ -193,7 +198,7 @@ function AdminContent() {
 export default function AdminPage() {
   return (
     <ProtectedRoute>
-      <main className="mx-auto w-full max-w-xl px-4 py-8">
+      <main className="mx-auto w-full max-w-3xl px-4 py-8">
         <AdminContent />
       </main>
     </ProtectedRoute>
