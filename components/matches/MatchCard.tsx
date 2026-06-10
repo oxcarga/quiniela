@@ -205,7 +205,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <div className="flex justify-center">
             <button
               onClick={openForm}
-              className="rounded-full bg-blue-600 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-700"
+              className="cursor-pointer rounded-full bg-blue-600 px-4 py-1 text-sm font-semibold text-white hover:bg-blue-700"
             >
               Predecir
             </button>
