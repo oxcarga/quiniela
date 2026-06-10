@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import type { LeaderboardEntry } from "@/lib/firestore";
+import { useUserPredictions } from "@/hooks/usePredictions";
 
 interface Props {
   entry: LeaderboardEntry;
@@ -10,12 +12,24 @@ interface Props {
 const MEDAL: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
+  const [clickedTimes, setClickedTimes] = useState(0);
+  const { data: predictions, isLoading: loadingPreds } = useUserPredictions(
+      entry.userId,
+      { refetchOnMount: true, staleTime: 60000 }
+    );
+
   const initials = entry.displayName
     .split(" ")
     .map((w) => w[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
+  
+  const predictionsCount = (predictions ?? []).length;
+
+  function handleClickRow () {
+    setClickedTimes(clickedTimes+1);
+  } 
 
   return (
     <div
@@ -24,6 +38,7 @@ export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
           ? "bg-blue-50 ring-1 ring-blue-200 dark:bg-blue-950 dark:ring-blue-800"
           : "bg-white dark:bg-zinc-900"
       }`}
+      onClick={handleClickRow}
     >
       {/* Position */}
       <span className="w-8 text-center text-lg font-bold tabular-nums text-zinc-500">
@@ -48,6 +63,8 @@ export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
       {/* Score */}
       <span className="text-lg font-bold tabular-nums">{entry.totalScore}</span>
       <span className="text-xs text-zinc-400">pts</span>
+
+      <div className={`text-xs ${clickedTimes < 5 && 'invisible'}`}> {predictionsCount} predicciones hechas</div>
     </div>
   );
 }

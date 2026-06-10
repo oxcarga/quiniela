@@ -50,6 +50,7 @@ export interface LeaderboardEntry {
   photoURL: string | null;
   totalScore: number;
   position: number;
+  predictionsCount: number;
 }
 
 export interface Leaderboard {
