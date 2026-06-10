@@ -69,7 +69,7 @@ export default function RulesModal() {
             </table>
 
             <p className="text-xs text-zinc-500">
-              En partidos de eliminación directa, el resultado se evalúa al final de los 90 minutos reglamentarios.
+              En fase de grupos, el resultado se evalúa al final de los 90 minutos reglamentarios. En partidos de eliminación directa, se evalúa al final del tiempo reglamentario más la prórroga (90+30 min), sin contar los penales.
             </p>
           </div>
         </div>
