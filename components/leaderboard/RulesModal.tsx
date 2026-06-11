@@ -41,7 +41,7 @@ export default function RulesModal() {
               </h2>
               <button
                 onClick={() => setOpen(false)}
-                className="text-xl leading-none text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                className="cursor-pointer text-xl leading-none text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
                 aria-label="Cerrar"
               >
                 ×

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import Navbar from "@/components/layout/Navbar";
-// import IosInstallHint from "@/components/pwa/IosInstallHint";
+import IosInstallHint from "@/components/pwa/IosInstallHint";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -49,7 +49,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col pb-16">
           <Providers>
             {children}
-            {/* <IosInstallHint /> */}
+            <IosInstallHint />
             <Navbar />
           </Providers>
         </body>

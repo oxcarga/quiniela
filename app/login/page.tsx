@@ -9,7 +9,7 @@ export default function LoginPage() {
             Quiniela Mundial 2026
           </h1>
           <p className="text-sm text-muted-foreground">
-            Ingresa tu email para recibir tu enlace de acceso
+            Ingresa tu email para recibir tu código y enlace de acceso
           </p>
         </div>
         <LoginForm />
