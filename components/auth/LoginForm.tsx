@@ -91,11 +91,14 @@ export default function LoginForm() {
           !signInLinkDEV && 
           <>
             <p className="text-sm font-medium text-foreground">
-              Revisa tu correo!!
+              Revisa tu correo
             </p>
             <p className="text-sm text-muted-foreground">
-              Enviamos un enlace a <span className="font-medium">{email}</span>.
+              Enviamos un enlace a <span className="font-bold">{email}</span>.
               Haz clic en él para entrar.
+            </p>
+            <p className="text-xs">
+              El enlace debe abrirse en este mismo navegador web, de lo contrario debes reiniciar el proceso y obtener otro enlace
             </p>
           </>
         }
