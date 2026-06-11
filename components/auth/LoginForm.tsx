@@ -9,6 +9,13 @@ import { useSearchParams } from 'next/navigation'
 
 type Status = "idle" | "loading" | "confirm_new" | "success" | "error";
 
+const SPAM_PRONE_DOMAINS = ["hotmail.com", "outlook.com"];
+
+function isSpamProneEmail(email: string) {
+  const domain = email.trim().toLowerCase().split("@")[1];
+  return SPAM_PRONE_DOMAINS.includes(domain);
+}
+
 type DebugProps = {
   status: Status
 }
@@ -137,6 +144,14 @@ export default function LoginForm() {
         disabled={status === "loading"}
         autoFocus
       />
+      <p className="text-xs text-muted-foreground">
+        Te enviaremos un correo. 
+        {isSpamProneEmail(email) && (
+        <span className="text-xs text-muted-foreground">
+          &nbsp;Si no lo ves en la bandeja de entrada, revisa tu carpeta de spam.
+        </span>
+      )}
+      </p>
       {error && <p className="text-xs text-destructive">{error}</p>}
       <Button
         type="submit"
