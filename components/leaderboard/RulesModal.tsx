@@ -68,6 +68,20 @@ export default function RulesModal() {
               </tbody>
             </table>
 
+            <div className="mb-4 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/30">
+              <h3 className="mb-2 flex items-center gap-2 font-semibold text-amber-900 dark:text-amber-200">
+                <span className="text-lg">⚡</span> Refuerzo (×2)
+              </h3>
+              <p className="text-xs text-amber-800 dark:text-amber-200 mb-2">
+                Multiplica por 2 los puntos de tu predicción. Disponible solo una vez por día.
+              </p>
+              <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                <li>• Debes tener una predicción antes de aplicar el refuerzo</li>
+                <li>• Solo puedes usarlo antes de que comience el partido</li>
+                <li>• Un refuerzo por día (basado en la hora de inicio del partido)</li>
+              </ul>
+            </div>
+
             <p className="text-xs text-zinc-500">
               En fase de grupos, el resultado se evalúa al final de los 90 minutos reglamentarios. En partidos de eliminación directa, se evalúa al final del tiempo reglamentario más la prórroga (90+30 min), sin contar los penales.
             </p>
