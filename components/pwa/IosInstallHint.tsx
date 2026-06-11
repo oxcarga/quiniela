@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Share, X } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const DISMISS_KEY = "ios-install-hint-dismissed";
 
 export default function IosInstallHint() {
+  const { user } = useAuth();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function IosInstallHint() {
     if (isIOS && isSafari && !isStandalone) setVisible(true);
   }, []);
 
-  if (!visible) return null;
+  if (!user || !visible) return null;
 
   function dismiss() {
     localStorage.setItem(DISMISS_KEY, "1");
