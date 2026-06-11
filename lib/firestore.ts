@@ -92,6 +92,29 @@ export async function getUserPredictions(userId: string): Promise<Prediction[]> 
   return snap.docs.map((d) => d.data() as Prediction);
 }
 
+// Reads another user's predictions one match at a time. Security rules only
+// permit reading another user's prediction for a match that has already kicked
+// off, so this is the read path for the head-to-head comparison. Reads that the
+// rules reject (e.g. a match that hasn't started, or clock skew near kickoff)
+// are silently skipped rather than failing the whole batch.
+export async function getUserPredictionsForMatches(
+  userId: string,
+  matchIds: string[]
+): Promise<Prediction[]> {
+  const results = await Promise.allSettled(
+    matchIds.map((matchId) =>
+      getDoc(doc(db, "predictions", userId, "matches", matchId))
+    )
+  );
+  const predictions: Prediction[] = [];
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value.exists()) {
+      predictions.push(r.value.data() as Prediction);
+    }
+  }
+  return predictions;
+}
+
 export async function setPrediction(
   userId: string,
   matchId: string,

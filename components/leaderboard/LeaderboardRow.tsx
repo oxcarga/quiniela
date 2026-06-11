@@ -13,8 +13,10 @@ const MEDAL: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
   const [clickedTimes, setClickedTimes] = useState(0);
-  const { data: predictions, isLoading: loadingPreds } = useUserPredictions(
-      entry.userId,
+  // Security rules only permit listing your own predictions, so the count is
+  // only fetched for the current user's row.
+  const { data: predictions } = useUserPredictions(
+      isCurrentUser ? entry.userId : null,
       { refetchOnMount: true, staleTime: 60000 }
     );
 
@@ -64,7 +66,9 @@ export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
       <span className="text-lg font-bold tabular-nums">{entry.totalScore}</span>
       <span className="text-xs text-zinc-400">pts</span>
 
-      <div className={`text-xs ${clickedTimes < 5 && 'hidden'}`}> {predictionsCount} predicciones hechas</div>
+      {isCurrentUser && (
+        <div className={`text-xs ${clickedTimes < 5 && 'hidden'}`}> {predictionsCount} predicciones hechas</div>
+      )}
     </div>
   );
 }

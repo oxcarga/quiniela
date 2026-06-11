@@ -25,14 +25,32 @@ service cloud.firestore {
     // The `boosted` flag is managed exclusively by the toggleBooster
     // Cloud Function — clients may neither set it on create nor change it.
     match /predictions/{userId}/matches/{matchId} {
-      allow read: if request.auth != null;
+      function matchData() {
+        return get(/databases/$(database)/documents/matches/$(matchId)).data;
+      }
+      // A match is no longer "upcoming" once it has kicked off OR an admin has
+      // marked it finished — mirrors getEffectiveStatus() on the client.
+      function matchStarted() {
+        return request.time >= matchData().kickoffAt
+               || matchData().status == 'finished';
+      }
+
+      // Single-doc reads: a user can always read their own prediction; another
+      // user's prediction is only readable once the match is no longer upcoming,
+      // so upcoming picks can't be peeked at (e.g. via the network) before lock.
+      allow get: if request.auth != null
+                 && (request.auth.uid == userId || matchStarted());
+      // Collection queries: only over your own predictions. (Cross-document
+      // checks can't be evaluated for a `list`, so others' picks must be read
+      // one match at a time via the `get` rule above.)
+      allow list: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null
                     && request.auth.uid == userId
-                    && request.time < get(/databases/$(database)/documents/matches/$(matchId)).data.kickoffAt
+                    && request.time < matchData().kickoffAt
                     && request.resource.data.get('boosted', false) == false;
       allow update: if request.auth != null
                     && request.auth.uid == userId
-                    && request.time < get(/databases/$(database)/documents/matches/$(matchId)).data.kickoffAt
+                    && request.time < matchData().kickoffAt
                     && request.resource.data.get('boosted', false) == resource.data.get('boosted', false);
     }
 

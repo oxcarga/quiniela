@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getPrediction,
   getUserPredictions,
+  getUserPredictionsForMatches,
   setPrediction,
   toggleBooster,
 } from "@/lib/firestore";
@@ -23,6 +24,22 @@ export function useUserPredictions(
     queryFn: () => getUserPredictions(userId!),
     enabled: !!userId,
     ...options,
+  });
+}
+
+// Reads another user's predictions for a specific set of matches (one getDoc
+// each). Used for the head-to-head comparison, where security rules only allow
+// reading another user's pick for a match that has already kicked off.
+export function useUserPredictionsForMatches(
+  userId: string | null,
+  matchIds: string[]
+) {
+  const sortedIds = [...matchIds].sort();
+  return useQuery({
+    queryKey: ["predictions", "for-matches", userId, sortedIds],
+    queryFn: () => getUserPredictionsForMatches(userId!, sortedIds),
+    enabled: !!userId && sortedIds.length > 0,
+    staleTime: 60000,
   });
 }
 

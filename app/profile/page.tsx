@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { X } from "lucide-react";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
-import { useUserPredictions } from "@/hooks/usePredictions";
+import { useUserPredictions, useUserPredictionsForMatches } from "@/hooks/usePredictions";
 import { useMatches } from "@/hooks/useMatches";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 
 function pointsBadge(points: number, boosted?: boolean): { label: string; className: string } {
@@ -14,7 +16,16 @@ function pointsBadge(points: number, boosted?: boolean): { label: string; classN
   return { label, className: "bg-green-100 text-green-700" };
 }
 
-function PredictionRow({ prediction, match }: { prediction: Prediction; match: Match }) {
+function PredictionRow({
+  prediction,
+  match,
+  comparisonName,
+}: {
+  prediction: Prediction;
+  match: Match;
+  comparisonName?: string;
+}) {
+  const isComparison = comparisonName !== undefined;
   const effectiveStatus = getEffectiveStatus(match);
   const kickoffFormatted = new Intl.DateTimeFormat(undefined, {
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
@@ -25,7 +36,13 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
     : null;
 
   return (
-    <div className="relative flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+    <div
+      className={`relative flex items-center gap-3 rounded-xl border px-4 py-3 ${
+        isComparison
+          ? "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30"
+          : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+      }`}
+    >
       {prediction.boosted && (
         <span
           title="Refuerzo aplicado (×2)"
@@ -34,20 +51,26 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
           ⚡
         </span>
       )}
-      {/* Teams */}
+      {/* Teams / comparison name */}
       <div className="flex flex-1 flex-col gap-0.5">
-        <div className="flex flex-col sm:flex-row items-left gap-2 text-sm font-medium">
-          <div className="flex gap-2">
-            <span>{match.homeFlag}</span>
-            <span>{match.homeTeam}</span>
-          </div>
-          <span className="px-8 text-zinc-400">vs</span>
-          <div className="flex gap-2">
-            <span>{match.awayFlag}</span>
-            <span>{match.awayTeam}</span>
-          </div>
-        </div>
-        <span className="text-xs text-zinc-400">{kickoffFormatted}</span>
+        {isComparison ? (
+          <span className="text-sm font-medium text-green-800 font-semibold text-right px-10">{comparisonName}</span>
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row items-left gap-2 text-sm font-medium">
+              <div className="flex gap-2">
+                <span>{match.homeFlag}</span>
+                <span>{match.homeTeam}</span>
+              </div>
+              <span className="px-8 text-zinc-400">vs</span>
+              <div className="flex gap-2">
+                <span>{match.awayFlag}</span>
+                <span>{match.awayTeam}</span>
+              </div>
+            </div>
+            <span className="text-xs text-zinc-400">{kickoffFormatted}</span>
+          </>
+        )}
       </div>
 
       {/* Prediction */}
@@ -60,7 +83,7 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
 
       {/* Result */}
       {effectiveStatus === "finished" && match.result && (
-        <div className="flex flex-col items-center">
+        <div className={`flex flex-col items-center ${isComparison ? "invisible" : ""}`}>
           <span className="text-xs text-zinc-400">Resultado</span>
           <span className="tabular-nums font-semibold">
             {match.result.homeGoals} – {match.result.awayGoals}
@@ -92,6 +115,87 @@ function PredictionRow({ prediction, match }: { prediction: Prediction; match: M
   );
 }
 
+function RankingDropdown({
+  currentUserId,
+  selectedId,
+  onSelect,
+}: {
+  currentUserId?: string;
+  selectedId: string | null;
+  onSelect: (user: { id: string; name: string } | null) => void;
+}) {
+  const { data: leaderboard } = useLeaderboard();
+  const [open, setOpen] = useState(false);
+  const rankings = (leaderboard?.rankings ?? []).filter((e) => e.userId !== currentUserId);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+      >
+        {selectedId
+          ? `Comparando: ${rankings.find((e) => e.userId === selectedId)?.displayName ?? ""}`
+          : "Comparar con:"}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" />
+        </svg>
+      </button>
+
+      {open && (
+        <>
+          {/* Click-away overlay */}
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-20 mt-1 max-h-80 w-64 overflow-y-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+            {selectedId && (
+              <div
+                onClick={() => {
+                  onSelect(null);
+                  setOpen(false);
+                }}
+                className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" /> Quitar comparación
+              </div>
+            )}
+            {rankings.length === 0 ? (
+              <p className="px-3 py-2 text-xs text-zinc-500">Sin datos aún.</p>
+            ) : (
+              rankings.map((entry) => (
+                <div
+                  key={entry.userId}
+                  onClick={() => {
+                    onSelect({ id: entry.userId, name: entry.displayName });
+                    setOpen(false);
+                  }}
+                  className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm transition-colors ${
+                    selectedId === entry.userId
+                      ? "bg-green-50 dark:bg-green-900/40"
+                      : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  <span className="w-5 shrink-0 text-right tabular-nums text-zinc-400">
+                    {entry.position}
+                  </span>
+                  <span className="flex-1 truncate">{entry.displayName}</span>
+                  <span className="shrink-0 font-semibold tabular-nums">{entry.totalScore}</span>
+                  <span className="shrink-0 text-xs text-zinc-400">pts</span>
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function ProfileContent() {
   const { user, signOut, setDisplayName } = useAuth();
   // Always refetch on visit so freshly scored points/results show without a refresh
@@ -103,6 +207,27 @@ function ProfileContent() {
     refetchOnMount: "always",
     staleTime: 0,
   });
+
+  const matchMap = new Map<string, Match>(matches?.map((m) => [m.matchId, m]) ?? []);
+
+  const [compareUser, setCompareUser] = useState<{ id: string; name: string } | null>(null);
+
+  // Only the matches I predicted that have already kicked off are comparable —
+  // security rules forbid reading another user's pick for an upcoming match.
+  const comparableMatchIds = (predictions ?? [])
+    .filter((p) => {
+      const m = matchMap.get(p.matchId);
+      return m && getEffectiveStatus(m) !== "upcoming";
+    })
+    .map((p) => p.matchId);
+
+  const { data: comparePredictions } = useUserPredictionsForMatches(
+    compareUser?.id ?? null,
+    comparableMatchIds
+  );
+  const comparePredMap = new Map<string, Prediction>(
+    (comparePredictions ?? []).map((p) => [p.matchId, p])
+  );
 
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -131,8 +256,6 @@ function ProfileContent() {
   }
 
   const isLoading = loadingPreds || loadingMatches;
-
-  const matchMap = new Map<string, Match>(matches?.map((m) => [m.matchId, m]) ?? []);
 
   const rows = (predictions ?? [])
     .map((p) => ({ prediction: p, match: matchMap.get(p.matchId) }))
@@ -228,9 +351,16 @@ function ProfileContent() {
         </div>
       </div>
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-        Mis predicciones
-      </h2>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          Mis predicciones
+        </h2>
+        <RankingDropdown
+          currentUserId={user?.uid}
+          selectedId={compareUser?.id ?? null}
+          onSelect={setCompareUser}
+        />
+      </div>
 
       {isLoading && <p className="text-center text-sm text-zinc-500">Cargando…</p>}
       {!isLoading && rows.length === 0 && (
@@ -238,9 +368,27 @@ function ProfileContent() {
       )}
 
       <div className="flex flex-col gap-2">
-        {rows.map(({ prediction, match }) => (
-          <PredictionRow key={prediction.matchId} prediction={prediction} match={match} />
-        ))}
+        {rows.map(({ prediction, match }) => {
+          // Only reveal the other user's prediction once the match has kicked off,
+          // so upcoming predictions aren't leaked.
+          const comparePred =
+            compareUser && getEffectiveStatus(match) !== "upcoming"
+              ? comparePredMap.get(match.matchId)
+              : undefined;
+
+          return (
+            <Fragment key={prediction.matchId}>
+              <PredictionRow prediction={prediction} match={match} />
+              {compareUser && comparePred && (
+                <PredictionRow
+                  prediction={comparePred}
+                  match={match}
+                  comparisonName={compareUser.name}
+                />
+              )}
+            </Fragment>
+          );
+        })}
       </div>
     </main>
   );
