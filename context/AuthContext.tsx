@@ -20,6 +20,13 @@ import { auth, db } from "@/lib/firebase";
 
 const MAGIC_LINK_EMAIL_KEY = "emailForSignIn";
 const SESSION_COOKIE = "auth_session";
+// Optimistic gate cookie for the proxy. It must outlive any realistic gap
+// between visits so a still-logged-in user (Firebase session persists in
+// IndexedDB, which is ITP-exempt in an installed PWA) is never bounced to
+// /login by the server before client JS can confirm auth. The client
+// (onAuthStateChanged) is the real gate and clears this the instant Firebase
+// reports no user, so a long lifetime here is safe. 400d = browser cookie cap.
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 400;
 
 interface AuthContextValue {
   user: User | null;
@@ -46,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Keep the optimistic proxy cookie in sync with Firebase auth state
       if (firebaseUser) {
-        document.cookie = `${SESSION_COOKIE}=1; path=/; max-age=604800; SameSite=Lax`;
+        document.cookie = `${SESSION_COOKIE}=1; path=/; max-age=${SESSION_COOKIE_MAX_AGE}; SameSite=Lax`;
       } else {
         document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0`;
       }
