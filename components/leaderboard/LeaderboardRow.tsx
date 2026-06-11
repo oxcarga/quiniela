@@ -64,7 +64,7 @@ export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
       <span className="text-lg font-bold tabular-nums">{entry.totalScore}</span>
       <span className="text-xs text-zinc-400">pts</span>
 
-      <div className={`text-xs ${clickedTimes < 5 && 'invisible'}`}> {predictionsCount} predicciones hechas</div>
+      <div className={`text-xs ${clickedTimes < 5 && 'hidden'}`}> {predictionsCount} predicciones hechas</div>
     </div>
   );
 }
