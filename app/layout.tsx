@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import Navbar from "@/components/layout/Navbar";
+import IosInstallHint from "@/components/pwa/IosInstallHint";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +18,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Quiniela Mundial 2026",
   description: "Predice los resultados del Mundial 2026",
+  appleWebApp: {
+    capable: true,
+    title: "Quiniela",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/app-icon-192.png",
+    apple: "/apple-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -39,6 +49,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col pb-16">
           <Providers>
             {children}
+            <IosInstallHint />
             <Navbar />
           </Providers>
         </body>
