@@ -59,5 +59,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // Login codes: written and verified only by the server (Admin SDK), which
+    // bypasses these rules. Clients must never read or write them — a leaked
+    // code hash would undermine the OTP login.
+    match /loginCodes/{email} {
+      allow read, write: if false;
+    }
   }
 }

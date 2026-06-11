@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { getUserByEmail } from "@/lib/firestore";
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-type Status = "idle" | "loading" | "confirm_new" | "success" | "error";
+type Status = "idle" | "loading" | "confirm_new" | "code_sent" | "error";
 
 const SPAM_PRONE_DOMAINS = ["hotmail.com", "outlook.com"];
 
@@ -38,23 +38,30 @@ function Debug(props: DebugProps) {
 }
 
 export default function LoginForm() {
-  const { sendMagicLink, signInLinkDEV } = useAuth();
+  const { sendMagicLink, signInLinkDEV, signInCodeDEV, confirmCode } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
-  
+  const [code, setCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [codeError, setCodeError] = useState("");
+
+  // In dev the API returns the code directly — prefill it to speed up testing.
+  useEffect(() => {
+    if (signInCodeDEV) setCode(signInCodeDEV);
+  }, [signInCodeDEV]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
     setError("");
-    console.log(email);
 
     try {
       const exists = await getUserByEmail(email);
       if (exists) {
         await sendMagicLink(email);
-        setStatus("success");
+        setStatus("code_sent");
       } else {
         setStatus("confirm_new");
       }
@@ -69,40 +76,95 @@ export default function LoginForm() {
     setStatus("loading");
     try {
       await sendMagicLink(email);
-      setStatus("success");
+      setStatus("code_sent");
     } catch {
       setStatus("error");
       setError("No se pudo enviar el enlace. Intenta de nuevo.");
     }
   }
 
-  if (status === "success") {
+  async function handleVerifyCode(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setVerifying(true);
+    setCodeError("");
+    try {
+      const user = await confirmCode(email, code);
+      router.replace(user.displayName ? "/" : "/onboarding");
+    } catch (err) {
+      setCodeError(
+        err instanceof Error ? err.message : "Código inválido. Intenta de nuevo."
+      );
+      setVerifying(false);
+    }
+  }
+
+  if (status === "code_sent") {
     return (
-      <div className="text-center space-y-2">
-        {
-          signInLinkDEV && 
-          <>
-            <a className="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" 
-              href={signInLinkDEV}>Skip login ➔</a>
-            <br />
-          </>
-        }
-        {
-          !signInLinkDEV && 
-          <>
-            <p className="text-sm font-medium text-foreground">
-              Revisa tu correo
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Enviamos un enlace a <span className="font-bold">{email}</span>.
-              Haz clic en él para entrar.
-            </p>
-            <p className="text-xs">
-              El enlace debe abrirse en este mismo navegador web, de lo contrario debes reiniciar el proceso y obtener otro enlace
-            </p>
-          </>
-        }
-        
+      <div className="space-y-4">
+        <div className="text-center space-y-1">
+          <p className="text-sm font-medium text-foreground">
+            Revisa tu correo
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Enviamos un código de 4 dígitos a{" "}
+            <span className="font-bold">{email}</span>. Escríbelo aquí para
+            entrar.
+          </p>
+        </div>
+
+        <form onSubmit={handleVerifyCode} className="space-y-3">
+          <Input
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="\d{4}"
+            maxLength={4}
+            placeholder="••••"
+            value={code}
+            onChange={(e) =>
+              setCode(e.target.value.replace(/\D/g, "").slice(0, 4))
+            }
+            disabled={verifying}
+            autoFocus
+            className="text-center text-lg tracking-[0.5em]"
+          />
+          {codeError && (
+            <p className="text-xs text-destructive">{codeError}</p>
+          )}
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            disabled={code.length !== 4 || verifying}
+          >
+            {verifying ? "Verificando…" : "Entrar"}
+          </Button>
+        </form>
+
+        {signInLinkDEV && (
+          <a
+            className="block text-center text-sm font-semibold text-blue-600 hover:text-blue-500"
+            href={signInLinkDEV}
+          >
+            Skip login ➔
+          </a>
+        )}
+
+        <p className="text-center text-xs text-muted-foreground">
+          También puedes abrir el enlace del correo, pero debe ser en este mismo
+          navegador.
+        </p>
+
+        <Button
+          variant="ghost"
+          className="w-full"
+          onClick={() => {
+            setCode("");
+            setCodeError("");
+            setStatus("idle");
+          }}
+        >
+          Usar otro correo
+        </Button>
       </div>
     );
   }

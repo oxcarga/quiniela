@@ -10,6 +10,7 @@ import {
 import {
   onAuthStateChanged,
   signInWithEmailLink,
+  signInWithCustomToken,
   signOut as firebaseSignOut,
   updateProfile,
   isSignInWithEmailLink,
@@ -32,8 +33,10 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   signInLinkDEV: string;
+  signInCodeDEV: string;
   sendMagicLink: (email: string) => Promise<void>;
   confirmMagicLink: (url: string, email?: string) => Promise<User>;
+  confirmCode: (email: string, code: string) => Promise<User>;
   setDisplayName: (name: string) => Promise<void>;
   signOut: () => Promise<void>;
   isEmailLinkUrl: (url: string) => boolean;
@@ -45,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [signInLinkDEV, setSignInLinkDEV] = useState("");
+  const [signInCodeDEV, setSignInCodeDEV] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -76,6 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (resJson.link) {
       setSignInLinkDEV(resJson.link);
     }
+    if (resJson.code) {
+      setSignInCodeDEV(resJson.code);
+    }
     localStorage.setItem(MAGIC_LINK_EMAIL_KEY, email);
   }, []);
 
@@ -90,6 +97,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithEmailLink(auth, email, url);
       localStorage.removeItem(MAGIC_LINK_EMAIL_KEY);
 
+      return result.user;
+    },
+    []
+  );
+
+  const confirmCode = useCallback(
+    async (email: string, code: string): Promise<User> => {
+      const res = await fetch("/api/auth/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Código inválido");
+      }
+      // Exchange the server-minted custom token for a session that lives in
+      // this context's own storage — the whole point of the code flow on iOS.
+      const result = await signInWithCustomToken(auth, data.token);
+      localStorage.removeItem(MAGIC_LINK_EMAIL_KEY);
       return result.user;
     },
     []
@@ -131,8 +158,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         signInLinkDEV,
+        signInCodeDEV,
         sendMagicLink,
         confirmMagicLink,
+        confirmCode,
         setDisplayName,
         signOut,
         isEmailLinkUrl,
