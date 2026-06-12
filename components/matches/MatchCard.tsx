@@ -9,7 +9,7 @@ import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
 import FormDots from "./FormDots";
 
 const STATUS_BADGE: Record<Match["status"], { label: string; className: string }> = {
-  upcoming: { label: "PRÓXIMAMENTE", className: "bg-blue-100 text-blue-700" },
+  upcoming: { label: "PRONTO",       className: "bg-blue-100 text-blue-700" },
   locked:   { label: "EN JUEGO",     className: "bg-amber-100 text-amber-700" },
   finished: { label: "FT",           className: "bg-zinc-100 text-zinc-600" },
 };
@@ -114,7 +114,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
       <Link
         href={`/matches/${match.matchId}`}
         onClick={() => sessionStorage.setItem("scroll:matches", String(window.scrollY))}
-        className="flex flex-col items-center justify-between px-4 py-5 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+        className="flex flex-col items-center justify-between px-3 py-5 hover:bg-zinc-50 dark:hover:bg-zinc-800"
       >
 
         {/* Group + venue */}
@@ -126,7 +126,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <p className="text-xs text-zinc-400">{match.venue}, {match.city}</p>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 gap-7">
+        <div className="flex items-center justify-between px-0 py-3 gap-2">
           <div className="relative flex w-28 flex-col items-center gap-1">
             <span className="text-3xl">{match.homeFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
@@ -141,13 +141,13 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <div className="flex flex-col items-center gap-1">
             {/* match is "finished" OR "locked" */}
             {match.status !== "upcoming" ? (
-              <span className="text-2xl font-bold tabular-nums">
+              <span className="text-xl font-bold tabular-nums">
                 {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals ?? 0}
               </span>
             ) : (
               <span className="text-lg font-semibold text-zinc-400">vs</span>
             )}
-            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}>
+            <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${badge.className}`}>
               {badge.label}
             </span>
           </div>
