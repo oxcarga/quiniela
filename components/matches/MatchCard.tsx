@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Trophy } from "lucide-react";
+import { Check } from "lucide-react";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 import { useSetPrediction, useToggleBooster } from "@/hooks/usePredictions";
 import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
@@ -128,9 +128,6 @@ export default function MatchCard({ match, prediction, highlighted = false, user
 
         <div className="flex items-center justify-between px-4 py-3 gap-7">
           <div className="relative flex w-28 flex-col items-center gap-1">
-            {effectiveStatus === "finished" && match.result && match.result.homeGoals > match.result.awayGoals && (
-              <Trophy className="absolute -right-5 h-5 w-5 text-yellow-500" fill="currentColor" />
-            )}
             <span className="text-3xl">{match.homeFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
             {rankingsByName[match.homeTeam as keyof typeof rankingsByName] && (
@@ -153,13 +150,9 @@ export default function MatchCard({ match, prediction, highlighted = false, user
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}>
               {badge.label}
             </span>
-            <span className="text-xs text-zinc-500">{kickoffFormatted}</span>
           </div>
 
           <div className="relative flex w-28 flex-col items-center gap-1">
-            {effectiveStatus === "finished" && match.result && match.result.awayGoals > match.result.homeGoals && (
-              <Trophy className="absolute -top-6 h-5 w-5 text-yellow-500" fill="currentColor" />
-            )}
             <span className="text-3xl">{match.awayFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
             {rankingsByName[match.awayTeam as keyof typeof rankingsByName] && (
