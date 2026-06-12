@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Check, Trophy } from "lucide-react";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
 import { useSetPrediction, useToggleBooster } from "@/hooks/usePredictions";
 import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
@@ -89,12 +90,26 @@ export default function MatchCard({ match, prediction, highlighted = false, user
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border shadow-sm transition-colors duration-1000 ${
+      className={`relative overflow-hidden rounded-xl border transition-colors duration-1000 ${
         showHighlight
           ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/40"
-          : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+          : effectiveStatus === "finished"
+            ? "border-slate-200 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-900/30"
+            : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
       }`}
     >
+      {/* Top accent line for finished matches */}
+      {effectiveStatus === "finished" && (
+        <div className="h-1 bg-gradient-to-r from-green-200 via-green-600 to-green-200 dark:from-green-400 dark:via-green-400 dark:to-green-500" />
+      )}
+
+      {/* Checkmark badge for finished matches */}
+      {effectiveStatus === "finished" && (
+        <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-green-500 ring-2 ring-green-500">
+          <Check className="h-4 w-4 text-zinc-50 dark:text-green-400" strokeWidth={4} />
+        </div>
+      )}
+
       {/* Navigable area */}
       <Link
         href={`/matches/${match.matchId}`}
@@ -112,7 +127,10 @@ export default function MatchCard({ match, prediction, highlighted = false, user
         </div>
 
         <div className="flex items-center justify-between px-4 py-3 gap-7">
-          <div className="flex w-28 flex-col items-center gap-1">
+          <div className="relative flex w-28 flex-col items-center gap-1">
+            {effectiveStatus === "finished" && match.result && match.result.homeGoals > match.result.awayGoals && (
+              <Trophy className="absolute -right-5 h-5 w-5 text-yellow-500" fill="currentColor" />
+            )}
             <span className="text-3xl">{match.homeFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
             {rankingsByName[match.homeTeam as keyof typeof rankingsByName] && (
@@ -138,7 +156,10 @@ export default function MatchCard({ match, prediction, highlighted = false, user
             <span className="text-xs text-zinc-500">{kickoffFormatted}</span>
           </div>
 
-          <div className="flex w-28 flex-col items-center gap-1">
+          <div className="relative flex w-28 flex-col items-center gap-1">
+            {effectiveStatus === "finished" && match.result && match.result.awayGoals > match.result.homeGoals && (
+              <Trophy className="absolute -top-6 h-5 w-5 text-yellow-500" fill="currentColor" />
+            )}
             <span className="text-3xl">{match.awayFlag}</span>
             <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
             {rankingsByName[match.awayTeam as keyof typeof rankingsByName] && (
@@ -152,7 +173,9 @@ export default function MatchCard({ match, prediction, highlighted = false, user
       </Link>
 
       {/* Prediction area — sibling to Link */}
-      <div className="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
+      <div className={`border-t border-zinc-200 dark:border-zinc-800 ${
+        effectiveStatus === "finished" ? "px-4 py-2" : "px-4 py-4"
+      }`}>
         {formOpen ? (
           <form onSubmit={handleSave} className="flex flex-col items-center gap-2 py-1">
             <div className="flex items-center gap-3">
@@ -194,11 +217,13 @@ export default function MatchCard({ match, prediction, highlighted = false, user
             </div>
           </form>
         ) : prediction ? (
-          <div className="flex flex-col items-center justify-center gap-2">
-            <span className="px-3 py-0.5 text-sm font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
-              Tu predicción:
-            </span>
-            <span className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-0.5 text-lg font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
+          <div className={`flex ${effectiveStatus === "finished" ? "items-center justify-center gap-2" : "flex-col items-center justify-center gap-2"}`}>
+            {effectiveStatus !== "finished" && (
+              <span className="px-3 py-0.5 text-sm font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300">
+                Tu predicción:
+              </span>
+            )}
+            <span className={`flex items-center gap-2 rounded-full ${effectiveStatus === "finished" ? "bg-green-50/50 px-2 py-0.5 text-sm" : "bg-green-50 px-3 py-0.5 text-lg"} font-semibold tabular-nums text-green-700 dark:bg-green-950 dark:text-green-300`}>
               {prediction.predictedHomeGoals} – {prediction.predictedAwayGoals}
               {prediction.boosted && (
                 <span className="rounded-full bg-amber-100 px-1.5 text-xs font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
@@ -207,7 +232,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
               )}
             </span>
             {effectiveStatus === "finished" && (
-              <span className={`rounded-full px-3 py-0.5 text-sm font-semibold tabular-nums ${
+              <span className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
                 prediction.pointsEarned
                   ? "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
                   : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
