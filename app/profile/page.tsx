@@ -4,10 +4,37 @@ import { Fragment, useState } from "react";
 import { X } from "lucide-react";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
-import { useUserPredictions, useUserPredictionsForMatches } from "@/hooks/usePredictions";
+import { useUserPredictions, useMultiUserPredictionsForMatches } from "@/hooks/usePredictions";
 import { useMatches } from "@/hooks/useMatches";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
+
+type StatusFilter = "all" | Match["status"];
+
+type CompareUser = { id: string; name: string };
+
+type CompareColor = { border: string; bg: string; text: string; dot: string };
+
+// One distinct color per compared user, assigned by selection order. Classes are
+// written out in full so Tailwind keeps them in the build.
+const COMPARE_COLORS: CompareColor[] = [
+  { border: "border-green-200 dark:border-green-900",  bg: "bg-green-50 dark:bg-green-950/30",   text: "text-green-800 dark:text-green-300",  dot: "bg-green-500" },
+  { border: "border-blue-200 dark:border-blue-900",    bg: "bg-blue-50 dark:bg-blue-950/30",     text: "text-blue-800 dark:text-blue-300",    dot: "bg-blue-500" },
+  { border: "border-purple-200 dark:border-purple-900",bg: "bg-purple-50 dark:bg-purple-950/30", text: "text-purple-800 dark:text-purple-300",dot: "bg-purple-500" },
+  { border: "border-orange-200 dark:border-orange-900",bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-800 dark:text-orange-300",dot: "bg-orange-500" },
+  { border: "border-pink-200 dark:border-pink-900",    bg: "bg-pink-50 dark:bg-pink-950/30",     text: "text-pink-800 dark:text-pink-300",    dot: "bg-pink-500" },
+];
+
+function compareColor(index: number): CompareColor {
+  return COMPARE_COLORS[index % COMPARE_COLORS.length];
+}
+
+const STATUS_FILTERS: Array<{ value: StatusFilter; label: string }> = [
+  { value: "all",      label: "Todos" },
+  { value: "upcoming", label: "Próximos" },
+  { value: "locked",   label: "En juego" },
+  { value: "finished", label: "Finalizados" },
+];
 
 function pointsBadge(points: number, boosted?: boolean): { label: string; className: string } {
   const label = `${points} ${points === 1 ? "pt" : "pts"}${boosted ? " ⚡" : ""}`;
@@ -20,12 +47,15 @@ function PredictionRow({
   prediction,
   match,
   comparisonName,
+  comparisonColor,
 }: {
   prediction: Prediction;
   match: Match;
   comparisonName?: string;
+  comparisonColor?: CompareColor;
 }) {
   const isComparison = comparisonName !== undefined;
+  const color = comparisonColor ?? COMPARE_COLORS[0];
   const effectiveStatus = getEffectiveStatus(match);
   const kickoffFormatted = new Intl.DateTimeFormat(undefined, {
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
@@ -39,7 +69,7 @@ function PredictionRow({
     <div
       className={`relative flex items-center gap-3 rounded-xl border px-4 py-3 ${
         isComparison
-          ? "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30"
+          ? `${color.border} ${color.bg}`
           : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
       }`}
     >
@@ -54,7 +84,7 @@ function PredictionRow({
       {/* Teams / comparison name */}
       <div className="flex flex-1 flex-col gap-0.5">
         {isComparison ? (
-          <span className="text-sm font-medium text-green-800 font-semibold text-right px-10">{comparisonName}</span>
+          <span className={`text-sm font-semibold text-right px-10 ${color.text}`}>{comparisonName}</span>
         ) : (
           <>
             <div className="flex flex-col sm:flex-row items-left gap-2 text-sm font-medium">
@@ -117,16 +147,25 @@ function PredictionRow({
 
 function RankingDropdown({
   currentUserId,
-  selectedId,
-  onSelect,
+  selectedIds,
+  onToggle,
+  onClear,
 }: {
   currentUserId?: string;
-  selectedId: string | null;
-  onSelect: (user: { id: string; name: string } | null) => void;
+  selectedIds: string[];
+  onToggle: (user: CompareUser) => void;
+  onClear: () => void;
 }) {
   const { data: leaderboard } = useLeaderboard();
   const [open, setOpen] = useState(false);
   const rankings = (leaderboard?.rankings ?? []).filter((e) => e.userId !== currentUserId);
+
+  const label =
+    selectedIds.length === 0
+      ? "Comparar con:"
+      : selectedIds.length === 1
+        ? `Comparando: ${rankings.find((e) => e.userId === selectedIds[0])?.displayName ?? ""}`
+        : `Comparando: ${selectedIds.length}`;
 
   return (
     <div className="relative">
@@ -135,9 +174,7 @@ function RankingDropdown({
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-1 rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
       >
-        {selectedId
-          ? `Comparando: ${rankings.find((e) => e.userId === selectedId)?.displayName ?? ""}`
-          : "Comparar con:"}
+        {label}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 16 16"
@@ -150,15 +187,12 @@ function RankingDropdown({
 
       {open && (
         <>
-          {/* Click-away overlay */}
+          {/* Click-away overlay — closes only when clicking outside the list */}
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute right-0 z-20 mt-1 max-h-80 w-64 overflow-y-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-            {selectedId && (
+            {selectedIds.length > 0 && (
               <div
-                onClick={() => {
-                  onSelect(null);
-                  setOpen(false);
-                }}
+                onClick={onClear}
                 className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 <X className="h-4 w-4" /> Quitar comparación
@@ -167,27 +201,43 @@ function RankingDropdown({
             {rankings.length === 0 ? (
               <p className="px-3 py-2 text-xs text-zinc-500">Sin datos aún.</p>
             ) : (
-              rankings.map((entry) => (
-                <div
-                  key={entry.userId}
-                  onClick={() => {
-                    onSelect({ id: entry.userId, name: entry.displayName });
-                    setOpen(false);
-                  }}
-                  className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm transition-colors ${
-                    selectedId === entry.userId
-                      ? "bg-green-50 dark:bg-green-900/40"
-                      : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                  }`}
-                >
-                  <span className="w-5 shrink-0 text-right tabular-nums text-zinc-400">
-                    {entry.position}
-                  </span>
-                  <span className="flex-1 truncate">{entry.displayName}</span>
-                  <span className="shrink-0 font-semibold tabular-nums">{entry.totalScore}</span>
-                  <span className="shrink-0 text-xs text-zinc-400">pts</span>
-                </div>
-              ))
+              rankings.map((entry) => {
+                const selectedIndex = selectedIds.indexOf(entry.userId);
+                const isSelected = selectedIndex !== -1;
+                return (
+                  <div
+                    key={entry.userId}
+                    onClick={() =>
+                      onToggle({ id: entry.userId, name: entry.displayName })
+                    }
+                    className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm transition-colors ${
+                      isSelected
+                        ? "bg-zinc-50 dark:bg-zinc-800/60"
+                        : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                        isSelected
+                          ? `${compareColor(selectedIndex).dot} border-transparent text-white`
+                          : "border-zinc-300 dark:border-zinc-600"
+                      }`}
+                    >
+                      {isSelected && (
+                        <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3">
+                          <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-6.5 6.5a.75.75 0 0 1-1.06 0l-3.25-3.25a.75.75 0 1 1 1.06-1.06l2.72 2.72 5.97-5.97a.75.75 0 0 1 1.06 0Z" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="w-5 shrink-0 text-right tabular-nums text-zinc-400">
+                      {entry.position}
+                    </span>
+                    <span className="flex-1 truncate">{entry.displayName}</span>
+                    <span className="shrink-0 font-semibold tabular-nums">{entry.totalScore}</span>
+                    <span className="shrink-0 text-xs text-zinc-400">pts</span>
+                  </div>
+                );
+              })
             )}
           </div>
         </>
@@ -210,7 +260,15 @@ function ProfileContent() {
 
   const matchMap = new Map<string, Match>(matches?.map((m) => [m.matchId, m]) ?? []);
 
-  const [compareUser, setCompareUser] = useState<{ id: string; name: string } | null>(null);
+  const [compareUsers, setCompareUsers] = useState<CompareUser[]>([]);
+
+  function toggleCompareUser(u: CompareUser) {
+    setCompareUsers((prev) =>
+      prev.some((p) => p.id === u.id)
+        ? prev.filter((p) => p.id !== u.id)
+        : [...prev, u]
+    );
+  }
 
   // Only the matches I predicted that have already kicked off are comparable —
   // security rules forbid reading another user's pick for an upcoming match.
@@ -221,14 +279,19 @@ function ProfileContent() {
     })
     .map((p) => p.matchId);
 
-  const { data: comparePredictions } = useUserPredictionsForMatches(
-    compareUser?.id ?? null,
+  // userId -> Map(matchId -> their prediction), one entry per compared user.
+  const comparePredsByUser = useMultiUserPredictionsForMatches(
+    compareUsers.map((u) => u.id),
     comparableMatchIds
   );
-  const comparePredMap = new Map<string, Prediction>(
-    (comparePredictions ?? []).map((p) => [p.matchId, p])
+  const comparePredMapByUser = new Map<string, Map<string, Prediction>>(
+    compareUsers.map((u) => [
+      u.id,
+      new Map((comparePredsByUser[u.id] ?? []).map((p) => [p.matchId, p])),
+    ])
   );
 
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
@@ -260,6 +323,7 @@ function ProfileContent() {
   const rows = (predictions ?? [])
     .map((p) => ({ prediction: p, match: matchMap.get(p.matchId) }))
     .filter((r): r is { prediction: Prediction; match: Match } => !!r.match)
+    .filter((r) => statusFilter === "all" || getEffectiveStatus(r.match) === statusFilter)
     .sort((a, b) => a.match.kickoffAt.toMillis() - b.match.kickoffAt.toMillis());
 
   const totalEarned = (predictions ?? [])
@@ -357,35 +421,65 @@ function ProfileContent() {
         </h2>
         <RankingDropdown
           currentUserId={user?.uid}
-          selectedId={compareUser?.id ?? null}
-          onSelect={setCompareUser}
+          selectedIds={compareUsers.map((u) => u.id)}
+          onToggle={toggleCompareUser}
+          onClear={() => setCompareUsers([])}
         />
+      </div>
+
+      {/* Status filter pill */}
+      <div className="mb-4 flex flex-wrap justify-start">
+        <div className="inline-flex rounded-full border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
+          {STATUS_FILTERS.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => setStatusFilter(s.value)}
+              className={`cursor-pointer rounded-full px-3 py-1 text-sm font-medium transition ${
+                statusFilter === s.value
+                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-900 dark:text-white"
+                  : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading && <p className="text-center text-sm text-zinc-500">Cargando…</p>}
       {!isLoading && rows.length === 0 && (
-        <p className="text-center text-sm text-zinc-500">Aún no tienes predicciones.</p>
+        <p className="text-center text-sm text-zinc-500">
+          {statusFilter === "all"
+            ? "Aún no tienes predicciones."
+            : "No hay predicciones en este filtro."}
+        </p>
       )}
 
       <div className="flex flex-col gap-2">
         {rows.map(({ prediction, match }) => {
-          // Only reveal the other user's prediction once the match has kicked off,
+          // Only reveal other users' predictions once the match has kicked off,
           // so upcoming predictions aren't leaked.
-          const comparePred =
-            compareUser && getEffectiveStatus(match) !== "upcoming"
-              ? comparePredMap.get(match.matchId)
-              : undefined;
+          const revealed = getEffectiveStatus(match) !== "upcoming";
 
           return (
             <Fragment key={prediction.matchId}>
               <PredictionRow prediction={prediction} match={match} />
-              {compareUser && comparePred && (
-                <PredictionRow
-                  prediction={comparePred}
-                  match={match}
-                  comparisonName={compareUser.name}
-                />
-              )}
+              {revealed &&
+                compareUsers.map((cu, i) => {
+                  const comparePred = comparePredMapByUser
+                    .get(cu.id)
+                    ?.get(match.matchId);
+                  if (!comparePred) return null;
+                  return (
+                    <PredictionRow
+                      key={cu.id}
+                      prediction={comparePred}
+                      match={match}
+                      comparisonName={cu.name}
+                      comparisonColor={compareColor(i)}
+                    />
+                  );
+                })}
             </Fragment>
           );
         })}

@@ -102,6 +102,9 @@ export default function MatchCard({ match, prediction, highlighted = false, user
       {effectiveStatus === "finished" && (
         <div className="h-1 bg-gradient-to-r from-green-200 via-green-600 to-green-200 dark:from-green-400 dark:via-green-400 dark:to-green-500" />
       )}
+      {effectiveStatus === "locked" && (
+        <div className="h-1 bg-gradient-to-r from-yellow-200 via-yellow-600 to-yellow-200 dark:from-yellow-400 dark:via-yellow-400 dark:to-yellow-500" />
+      )}
 
       {/* Checkmark badge for finished matches */}
       {effectiveStatus === "finished" && (

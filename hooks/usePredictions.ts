@@ -1,10 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueries,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   getPrediction,
   getUserPredictions,
   getUserPredictionsForMatches,
   setPrediction,
   toggleBooster,
+  type Prediction,
 } from "@/lib/firestore";
 
 export function usePrediction(userId: string | null, matchId: string) {
@@ -41,6 +47,28 @@ export function useUserPredictionsForMatches(
     enabled: !!userId && sortedIds.length > 0,
     staleTime: 60000,
   });
+}
+
+// Same as above but for several users at once. Returns a map of
+// userId -> their predictions for the requested matches, so the profile page
+// can show head-to-head comparisons against multiple players simultaneously.
+export function useMultiUserPredictionsForMatches(
+  userIds: string[],
+  matchIds: string[]
+) {
+  const sortedIds = [...matchIds].sort();
+  const results = useQueries({
+    queries: userIds.map((userId) => ({
+      queryKey: ["predictions", "for-matches", userId, sortedIds],
+      queryFn: () => getUserPredictionsForMatches(userId, sortedIds),
+      enabled: !!userId && sortedIds.length > 0,
+      staleTime: 60000,
+    })),
+  });
+  return userIds.reduce<Record<string, Prediction[]>>((acc, userId, i) => {
+    acc[userId] = results[i]?.data ?? [];
+    return acc;
+  }, {});
 }
 
 export function useSetPrediction(userId: string | null, matchId: string) {
