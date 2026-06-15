@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePrediction } from "@/hooks/usePredictions";
 import PredictionForm from "./PredictionForm";
 import type { Match } from "@/lib/firestore";
+import { Flag } from "@/components/Flag";
 
 const PHASE_LABEL: Record<Match["phase"], string> = {
   group:        "Fase de Grupos",
@@ -58,7 +59,7 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
       {/* Teams + score */}
       <div className="flex items-center justify-center gap-6">
         <div className="flex w-28 flex-col items-center gap-1">
-          <span className="text-5xl">{match.homeFlag}</span>
+          <Flag emoji={match.homeFlag} size={56} />
           <span className="text-center font-semibold">{match.homeTeam}</span>
         </div>
         <div className="flex flex-col items-center gap-1">
@@ -74,7 +75,7 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
           </span>
         </div>
         <div className="flex w-28 flex-col items-center gap-1">
-          <span className="text-5xl">{match.awayFlag}</span>
+          <Flag emoji={match.awayFlag} size={56} />
           <span className="text-center font-semibold">{match.awayTeam}</span>
         </div>
       </div>

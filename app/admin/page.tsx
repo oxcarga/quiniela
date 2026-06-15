@@ -10,6 +10,7 @@ import UsersTable from "@/components/admin/UsersTable";
 import { useAuth } from "@/context/AuthContext";
 import { useMatches } from "@/hooks/useMatches";
 import { setMatchResult } from "@/lib/firestore";
+import { Flag } from "@/components/Flag";
 import { useQueryClient } from "@tanstack/react-query";
 
 const schema = z.object({
@@ -141,7 +142,7 @@ function AdminContent() {
           <div className="flex items-center justify-center gap-6 rounded-xl border border-zinc-200 bg-zinc-50 px-6 py-5 dark:border-zinc-800 dark:bg-zinc-900">
             {/* Home */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-5xl">{selected.homeFlag}</span>
+              <Flag emoji={selected.homeFlag} size={56} />
               <span className="text-sm font-medium">{selected.homeTeam}</span>
               <Input
                 type="number" min={0}
@@ -157,7 +158,7 @@ function AdminContent() {
 
             {/* Away */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-5xl">{selected.awayFlag}</span>
+              <Flag emoji={selected.awayFlag} size={56} />
               <span className="text-sm font-medium">{selected.awayTeam}</span>
               <Input
                 type="number" min={0}

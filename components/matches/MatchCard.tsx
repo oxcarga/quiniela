@@ -7,6 +7,7 @@ import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore
 import { useSetPrediction, useToggleBooster } from "@/hooks/usePredictions";
 import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
 import FormDots from "./FormDots";
+import { Flag } from "@/components/Flag";
 
 const STATUS_BADGE: Record<Match["status"], { label: string; className: string }> = {
   upcoming: { label: "PRONTO",       className: "bg-blue-100 text-blue-700" },
@@ -131,7 +132,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
 
         <div className="flex items-center justify-between px-0 py-3 gap-2">
           <div className="relative flex w-28 flex-col items-center gap-1">
-            <span className="text-3xl">{match.homeFlag}</span>
+            <Flag emoji={match.homeFlag} size={40} />
             <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
             {rankingsByName[match.homeTeam as keyof typeof rankingsByName] && (
               <span className="text-xs text-zinc-400">
@@ -156,7 +157,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           </div>
 
           <div className="relative flex w-28 flex-col items-center gap-1">
-            <span className="text-3xl">{match.awayFlag}</span>
+            <Flag emoji={match.awayFlag} size={40} />
             <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
             {rankingsByName[match.awayTeam as keyof typeof rankingsByName] && (
               <span className="text-xs text-zinc-400">

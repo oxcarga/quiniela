@@ -8,6 +8,7 @@ import { useUserPredictions, useMultiUserPredictionsForMatches } from "@/hooks/u
 import { useMatches } from "@/hooks/useMatches";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
+import { Flag } from "@/components/Flag";
 
 type StatusFilter = "all" | Match["status"];
 
@@ -89,12 +90,12 @@ function PredictionRow({
           <>
             <div className="flex flex-col sm:flex-row items-left gap-2 text-sm font-medium">
               <div className="flex gap-2">
-                <span>{match.homeFlag}</span>
+                <Flag emoji={match.homeFlag} size={20} />
                 <span>{match.homeTeam}</span>
               </div>
               <span className="px-8 text-zinc-400">vs</span>
               <div className="flex gap-2">
-                <span>{match.awayFlag}</span>
+                <Flag emoji={match.awayFlag} size={20} />
                 <span>{match.awayTeam}</span>
               </div>
             </div>
