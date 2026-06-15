@@ -20,7 +20,15 @@ export function emojiToFlagCode(emoji: string): string | null {
   return null;
 }
 
-export function getFlagUrl(emoji: string, width = 40): string | null {
+export function getFlagUrl(emoji: string, size: number[]): string[] {
   const code = emojiToFlagCode(emoji);
-  return code ? `https://flagcdn.com/w${width}/${code}.png` : null;
+  if (!code) return []
+  return [
+    `https://flagcdn.com/${size[0]}x${size[1]}/${code}.webp`,
+    `https://flagcdn.com/${size[0]*2}x${size[1]*2}/${code}.webp`,
+    `https://flagcdn.com/${size[0]*3}x${size[1]*3}/${code}.webp`,
+    `https://flagcdn.com/${size[0]}x${size[1]}/${code}.png`,
+    `https://flagcdn.com/${size[0]*2}x${size[1]*2}/${code}.png`,
+    `https://flagcdn.com/${size[0]*3}x${size[1]*3}/${code}.png`,
+  ];
 }

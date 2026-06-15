@@ -59,7 +59,7 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
       {/* Teams + score */}
       <div className="flex items-center justify-center gap-6">
         <div className="flex w-28 flex-col items-center gap-1">
-          <Flag emoji={match.homeFlag} size={56} />
+          <Flag emoji={match.homeFlag} />
           <span className="text-center font-semibold">{match.homeTeam}</span>
         </div>
         <div className="flex flex-col items-center gap-1">
@@ -75,7 +75,7 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
           </span>
         </div>
         <div className="flex w-28 flex-col items-center gap-1">
-          <Flag emoji={match.awayFlag} size={56} />
+          <Flag emoji={match.awayFlag} />
           <span className="text-center font-semibold">{match.awayTeam}</span>
         </div>
       </div>
