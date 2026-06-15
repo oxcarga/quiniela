@@ -15,7 +15,7 @@ export function Flag({ emoji, size = 40, className }: FlagProps) {
       alt={emoji}
       width={size}
       className={className}
-      style={{ display: "inline-block" }}
+      style={{ display: "inline-block", height: `${size}px`, width: `${size}px` }}
     />
   );
 }

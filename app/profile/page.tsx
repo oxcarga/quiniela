@@ -151,11 +151,13 @@ function RankingDropdown({
   selectedIds,
   onToggle,
   onClear,
+  onSelectAll,
 }: {
   currentUserId?: string;
   selectedIds: string[];
   onToggle: (user: CompareUser) => void;
   onClear: () => void;
+  onSelectAll: (users: CompareUser[]) => void;
 }) {
   const { data: leaderboard } = useLeaderboard();
   const [open, setOpen] = useState(false);
@@ -199,6 +201,37 @@ function RankingDropdown({
                 <X className="h-4 w-4" /> Quitar comparación
               </div>
             )}
+            {rankings.length > 0 && (() => {
+              const allSelected = rankings.every((e) => selectedIds.includes(e.userId));
+              return (
+                <div
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    if (allSelected) {
+                      onClear();
+                    } else {
+                      onSelectAll(rankings.map((e) => ({ id: e.userId, name: e.displayName })));
+                    }
+                  }}
+                  className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                >
+                  <span
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                      allSelected
+                        ? "bg-zinc-500 border-transparent text-white"
+                        : "border-zinc-300 dark:border-zinc-600"
+                    }`}
+                  >
+                    {allSelected && (
+                      <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3">
+                        <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-6.5 6.5a.75.75 0 0 1-1.06 0l-3.25-3.25a.75.75 0 1 1 1.06-1.06l2.72 2.72 5.97-5.97a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                    )}
+                  </span>
+                  Seleccionar todos
+                </div>
+              );
+            })()}
             {rankings.length === 0 ? (
               <p className="px-3 py-2 text-xs text-zinc-500">Sin datos aún.</p>
             ) : (
@@ -425,6 +458,7 @@ function ProfileContent() {
           selectedIds={compareUsers.map((u) => u.id)}
           onToggle={toggleCompareUser}
           onClear={() => setCompareUsers([])}
+          onSelectAll={(users) => setCompareUsers(users)}
         />
       </div>
 
