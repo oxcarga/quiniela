@@ -1,29 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { Leaderboard } from "@/lib/firestore";
+import { useQuery } from "@tanstack/react-query";
+import { getLeaderboard } from "@/lib/firestore";
 
 export function useLeaderboard() {
-  const [data, setData] = useState<Leaderboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["leaderboard"],
+    queryFn: getLeaderboard,
+    refetchInterval: 60_000,
+    staleTime: 60_000,
+  });
 
-  useEffect(() => {
-    const unsub = onSnapshot(
-      doc(db, "leaderboard", "current"),
-      (snap) => {
-        setData(snap.exists() ? (snap.data() as Leaderboard) : null);
-        setLoading(false);
-      },
-      (err) => {
-        setError(err);
-        setLoading(false);
-      }
-    );
-    return unsub;
-  }, []);
-
-  return { data, loading, error };
+  return { data: data ?? null, loading: isLoading, error: error as Error | null };
 }
