@@ -157,6 +157,21 @@ export async function getLeaderboard(): Promise<Leaderboard | null> {
   return snap.data() as Leaderboard;
 }
 
+export async function getUsers(): Promise<LeaderboardEntry[]> {
+  const snap = await getDocs(query(collection(db, "users"), orderBy("displayName", "desc")));
+  return snap.docs.map((d, i) => {
+    const u = d.data();
+    return {
+      userId: u.uid as string,
+      displayName: u.displayName as string,
+      photoURL: (u.photoURL as string | null) ?? null,
+      totalScore: (u.totalScore as number) ?? 0,
+      predictionsCount: (u.predictionsCount as number) ?? 0,
+      position: i + 1,
+    };
+  });
+}
+
 export async function toggleBooster(
   matchId: string,
   boosted: boolean
