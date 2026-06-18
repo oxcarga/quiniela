@@ -23,7 +23,8 @@ service cloud.firestore {
 
     // Predictions: authenticated read, own write only before kickoff.
     // The `boosted` flag is managed exclusively by the toggleBooster
-    // Cloud Function — clients may neither set it on create nor change it.
+    // Cloud Function, and `pointsEarned` exclusively by scoreMatch —
+    // clients may neither set either field on create nor change it on update.
     match /predictions/{userId}/matches/{matchId} {
       function matchData() {
         return get(/databases/$(database)/documents/matches/$(matchId)).data;
@@ -47,11 +48,13 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == userId
                     && request.time < matchData().kickoffAt
-                    && request.resource.data.get('boosted', false) == false;
+                    && request.resource.data.get('boosted', false) == false
+                    && request.resource.data.get('pointsEarned', null) == null;
       allow update: if request.auth != null
                     && request.auth.uid == userId
                     && request.time < matchData().kickoffAt
-                    && request.resource.data.get('boosted', false) == resource.data.get('boosted', false);
+                    && request.resource.data.get('boosted', false) == resource.data.get('boosted', false)
+                    && request.resource.data.get('pointsEarned', null) == resource.data.get('pointsEarned', null);
     }
 
     // Leaderboard: public read, written only by Cloud Functions (admin SDK)

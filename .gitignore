@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Misc
 *.log
+
+# Firestore data dumps (scripts/export-db.ts) — contain prod data, never commit
+/firestore-export-*.json
