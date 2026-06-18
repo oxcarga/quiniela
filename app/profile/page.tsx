@@ -282,14 +282,12 @@ function RankingDropdown({
 
 function ProfileContent() {
   const { user, signOut, setDisplayName } = useAuth();
-  // Always refetch on visit so freshly scored points/results show without a refresh
   const { data: predictions, isLoading: loadingPreds } = useUserPredictions(
     user?.uid ?? null,
-    { refetchOnMount: "always", staleTime: 0 }
+    { staleTime: 60_000 }
   );
   const { data: matches, isLoading: loadingMatches } = useMatches(undefined, {
-    refetchOnMount: "always",
-    staleTime: 0,
+    staleTime: 60_000,
   });
 
   const matchMap = new Map<string, Match>(matches?.map((m) => [m.matchId, m]) ?? []);

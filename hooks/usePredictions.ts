@@ -18,6 +18,7 @@ export function usePrediction(userId: string | null, matchId: string) {
     queryKey: ["predictions", userId, matchId],
     queryFn: () => getPrediction(userId!, matchId),
     enabled: !!userId && !!matchId,
+    staleTime: 60_000,
   });
 }
 
