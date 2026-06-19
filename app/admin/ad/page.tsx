@@ -18,8 +18,8 @@ function sanitize(html: string): string {
 // so Tailwind compiles every class it uses — utilities only referenced inside the
 // Firestore string would otherwise never make it into the generated CSS.
 const MODAL_TEMPLATE = `<div class="flex flex-col items-center text-center">
-  <div class="mb-4 flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl shadow-lg">
-    <img src="http://localhost:9199/v0/b/quiniela-ee895.firebasestorage.app/o/ads%2F1781903761946-onetv.jpg?alt=media&token=5db575f4-13a6-47ae-8a44-3e871cbb922d"  />
+  <div class="mb-4 flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-5xl shadow-lg">
+    📺
   </div>
 
   <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-50">OneTV</h2>
@@ -229,7 +229,7 @@ export default function AdEditorPage() {
       )}
 
       {/* Live preview */}
-      <div className="flex flex-col gap-3">
+      {!isLoading && <div className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-zinc-500">Vista previa</h2>
 
         {imageUrl ? (
@@ -248,7 +248,7 @@ export default function AdEditorPage() {
             />
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
