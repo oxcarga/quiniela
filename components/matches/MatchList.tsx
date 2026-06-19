@@ -58,7 +58,7 @@ export default function MatchList() {
   const { data: predictions } = useUserPredictions(user?.uid ?? null);
   const [highlightedMatchId, setHighlightedMatchId] = useState<string | null>(null);
   const [predictionFilter, setPredictionFilter] = useState<PredictionFilter>("all");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("upcoming");
   const [filtersVisible, setFiltersVisible] = useState<boolean>(false);
 
   useEffect(() => {
