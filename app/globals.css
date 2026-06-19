@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Safelist sizing utilities for admin-authored ad modal HTML. That markup lives
+   in Firestore and is injected at runtime, so Tailwind never sees these class
+   names while scanning source files and would otherwise not emit their CSS.
+   For one-off/arbitrary values, use inline `style="…"` in the ad HTML instead. */
+@source inline("{w,h,size,min-w,min-h,max-w,max-h}-{0,1,2,3,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96}");
+@source inline("max-w-{xs,sm,md,lg,xl,2xl,3xl}");
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

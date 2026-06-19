@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Megaphone, User2, Gamepad } from "lucide-react";
 import { z } from "zod";
-import { getIdTokenResult } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import UsersTable from "@/components/admin/UsersTable";
-import { useAuth } from "@/context/AuthContext";
 import { useMatches } from "@/hooks/useMatches";
 import { setMatchResult } from "@/lib/firestore";
 import { Flag } from "@/components/Flag";
@@ -19,10 +18,9 @@ const schema = z.object({
 });
 
 function AdminContent() {
-  const { user } = useAuth();
   const { data: matches, isLoading } = useMatches();
 
-  const [isAdmin, setIsAdmin]           = useState<boolean | null>(null);
+  const [showPast, setShowPast]         = useState(false);
   const [selectedId, setSelectedId]     = useState("");
   const [homeGoals, setHomeGoals]       = useState(0);
   const [awayGoals, setAwayGoals]       = useState(0);
@@ -30,15 +28,9 @@ function AdminContent() {
   const [error, setError]               = useState<string | null>(null);
   const [submitting, setSubmitting]     = useState(false);
   const [successId, setSuccessId]       = useState<string | null>(null);
+  const [loadUsers, setLoadUsers]       = useState(false);
+  const [updateMatch, setUpdateMatch]   = useState(false);
   const queryClient                     = useQueryClient();
-
-  // Check admin custom claim
-  useEffect(() => {
-    if (!user) return;
-    getIdTokenResult(user).then((result) => {
-      setIsAdmin(result.claims.admin === true);
-    });
-  }, [user]);
 
   // update the status of the checkbox based on what's coming from the database
   useEffect(() => {
@@ -46,14 +38,6 @@ function AdminContent() {
     const selected = matches?.find((m) => m.matchId === selectedId) ?? null;
     setMatchEnded(selected?.status === "finished");
   }, [successId, selectedId]);
-
-  if (isAdmin === null) return <p className="text-center text-sm text-zinc-500">Verificando permisos…</p>;
-  if (!isAdmin) return (
-    <div className="text-center">
-      <p className="text-lg font-semibold text-red-600">Acceso denegado</p>
-      <p className="mt-1 text-sm text-zinc-500">Necesitas permisos de administrador.</p>
-    </div>
-  );
 
   const allMatches = matches ?? [];
   const selected   = allMatches.find((m) => m.matchId === selectedId) ?? null;
@@ -110,10 +94,28 @@ function AdminContent() {
         </div>
       )}
 
+      <hr className="border-zinc-200 dark:border-zinc-800" />
+      {!updateMatch && <button className="cursor-pointer inline-flex w-fit items-center gap-2 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium transition-colors hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500" onClick={() => setUpdateMatch(true)}>
+        <Gamepad className="h-4 w-4" />
+        Actualizar Partidos
+      </button>}
+
+      {updateMatch && 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Match selector */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">Partido</label>
+          <label className="text-lg font-semibold">Partido</label>
+          <p>
+            <label htmlFor="show-past-games" className="flex items-center gap-2 cursor-pointer select-none text-sm font-medium justify-end">
+              <input 
+                id="show-past-games"
+                className="w-4 h-4 accent-primary cursor-pointer"
+                type="checkbox" 
+                checked={showPast}
+                onChange={(e) => setShowPast(e.target.checked)} />
+              Mostrar partidos pasados?
+            </label>
+          </p>
           {isLoading ? (
             <p className="text-sm text-zinc-500">Cargando partidos…</p>
           ) : (
@@ -123,16 +125,18 @@ function AdminContent() {
               className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
             >
               <option value="">— Selecciona un partido —</option>
-              {allMatches.map((m) => (
-                <option key={m.matchId} value={m.matchId}>
-                  {m.status === "finished" ? "✅ " : ""}{m.homeFlag} {m.homeTeam} vs {m.awayTeam} {m.awayFlag}
+              {allMatches.map((m) => {
+                const isFinished = m.status === "finished";
+                if (isFinished && !showPast) {return}
+                return <option key={m.matchId} value={m.matchId}>
+                  {isFinished ? "✅ " : ""}{m.homeFlag} {m.homeTeam} vs {m.awayTeam} {m.awayFlag}
                   {" · "}
                   {new Intl.DateTimeFormat(undefined, {
                     month: "short", day: "numeric",
                     hour: "2-digit", minute: "2-digit",
                   }).format(m.kickoffAt.toDate())}
                 </option>
-              ))}
+              })}
             </select>
           )}
         </div>
@@ -186,22 +190,31 @@ function AdminContent() {
         <Button type="submit" disabled={!selectedId || submitting} className="w-full">
           {submitting ? "Guardando…" : "Confirmar resultado"}
         </Button>
-      </form>
+      </form>}
 
       <hr className="border-zinc-200 dark:border-zinc-800" />
 
-      <UsersTable enabled={isAdmin === true} />
+      <Link
+        href="/admin/ad"
+        className="cursor-pointer inline-flex w-fit items-center gap-2 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium transition-colors hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500"
+      >
+        <Megaphone className="h-4 w-4" />
+        Editar anuncio (banner)
+      </Link>
+
+      <hr className="border-zinc-200 dark:border-zinc-800" />
+
+        
+      {!loadUsers && <button className="cursor-pointer inline-flex w-fit items-center gap-2 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium transition-colors hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500" onClick={() => setLoadUsers(true)}>
+        <User2 className="h-4 w-4" />
+        Cargar Users
+      </button>}
+      {loadUsers && <UsersTable enabled={loadUsers} />}
     </div>
   );
 }
 
 
 export default function AdminPage() {
-  return (
-    <ProtectedRoute>
-      <main className="mx-auto w-full max-w-3xl px-4 py-8">
-        <AdminContent />
-      </main>
-    </ProtectedRoute>
-  );
+  return <AdminContent />;
 }

@@ -1,0 +1,17 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Ad creative (banner images, modal logos). Public read so every visitor can
+    // load the banner; admin-only write, mirroring the Firestore `config` rule.
+    match /ads/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Everything else is locked down by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

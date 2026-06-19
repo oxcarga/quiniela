@@ -58,6 +58,16 @@ export interface Leaderboard {
   rankings: LeaderboardEntry[];
 }
 
+export interface AdBanner {
+  active: boolean;
+  previewMode: boolean; // when true, only admins see the banner
+  imageUrl: string;
+  alt: string;
+  modalHtml: string;
+  version: string;
+  updatedAt: Timestamp;
+}
+
 export function getEffectiveStatus(match: Match): Match["status"] {
   if (match.status === "finished") return "finished";
   if (Date.now() >= match.kickoffAt.toMillis()) return "locked";
@@ -155,6 +165,22 @@ export async function getLeaderboard(): Promise<Leaderboard | null> {
   const snap = await getDoc(doc(db, "leaderboard", "current"));
   if (!snap.exists()) return null;
   return snap.data() as Leaderboard;
+}
+
+export async function getAdBanner(): Promise<AdBanner | null> {
+  const snap = await getDoc(doc(db, "config", "adBanner"));
+  if (!snap.exists()) return null;
+  return snap.data() as AdBanner;
+}
+
+export async function setAdBanner(
+  data: Omit<AdBanner, "version" | "updatedAt">
+): Promise<void> {
+  await setDoc(doc(db, "config", "adBanner"), {
+    ...data,
+    version: Date.now().toString(),
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export async function getUsers(): Promise<LeaderboardEntry[]> {
