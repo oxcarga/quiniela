@@ -7,7 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdBanner } from "@/hooks/useAdBanner";
-import { setAdBanner } from "@/lib/firestore";
+import { useAdBannerStats } from "@/hooks/useAdBannerStats";
+import { setAdBanner, type AdBannerStats } from "@/lib/firestore";
 import ImageUpload from "@/components/ads/ImageUpload";
 
 function sanitize(html: string): string {
@@ -19,7 +20,7 @@ function sanitize(html: string): string {
 // Firestore string would otherwise never make it into the generated CSS.
 const MODAL_TEMPLATE = `<div class="flex flex-col items-center text-center">
   <div class="mb-4 flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-5xl shadow-lg">
-    📺
+    <img src="" />
   </div>
 
   <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-50">OneTV</h2>
@@ -249,6 +250,103 @@ export default function AdEditorPage() {
           </div>
         )}
       </div>}
+
+      {!isLoading && banner?.version && <AdStatsPanel version={banner.version} />}
+    </div>
+  );
+}
+
+const n = (v: number | undefined) => v ?? 0;
+const pct = (num: number, den: number) => (den ? `${Math.round((num / den) * 100)}%` : "—");
+
+function StatCard({ label, value, sub }: { label: string; value: number; sub?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+      <span className="text-xs text-zinc-500">{label}</span>
+      <span className="text-xl font-bold tabular-nums">{value.toLocaleString()}</span>
+      {sub && <span className="text-xs text-zinc-400">{sub}</span>}
+    </div>
+  );
+}
+
+function AdStatsPanel({ version }: { version: string }) {
+  const { data, isLoading } = useAdBannerStats(version);
+
+  if (isLoading) {
+    return <p className="text-sm text-zinc-500">Cargando estadísticas…</p>;
+  }
+
+  const s: AdBannerStats = data?.stats ?? {};
+  const days = data?.days ?? [];
+  const impressions = n(s.impression);
+  const modalOpen = n(s.modalOpen);
+  const clicks = n(s.clickWhatsapp) + n(s.clickInstagram) + n(s.clickPhone) + n(s.clickOther);
+  const hasData = impressions + modalOpen + clicks + n(s.bannerClose) + n(s.bannerCloseAfterModal) > 0;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="text-sm font-semibold text-zinc-500">Estadísticas (versión actual)</h2>
+
+      {!hasData ? (
+        <p className="text-sm text-zinc-400">Aún no hay datos para este anuncio.</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <StatCard label="Impresiones" value={impressions} sub={`${n(s.impressionUnique)} únicas`} />
+            <StatCard
+              label="Abrió modal"
+              value={modalOpen}
+              sub={`${n(s.modalOpenUnique)} únicas · ${pct(modalOpen, impressions)} apertura`}
+            />
+            <StatCard label="CTR" value={clicks} sub={`${pct(clicks, impressions)} de impresiones`} />
+            <StatCard label="Clics WhatsApp" value={n(s.clickWhatsapp)} sub={`${n(s.clickWhatsappUnique)} únicos`} />
+            <StatCard label="Clics Instagram" value={n(s.clickInstagram)} sub={`${n(s.clickInstagramUnique)} únicos`} />
+            <StatCard label="Clics Teléfono" value={n(s.clickPhone)} sub={`${n(s.clickPhoneUnique)} únicos`} />
+            <StatCard label="Cerró sin abrir" value={n(s.bannerClose)} />
+            <StatCard label="Cerró tras abrir" value={n(s.bannerCloseAfterModal)} />
+            <StatCard
+              label="Cerró modal sin clic"
+              value={n(s.modalCloseNoClick)}
+              sub={`${pct(n(s.modalCloseNoClick), modalOpen)} abandono`}
+            />
+          </div>
+
+          {days.length > 0 && (
+            <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-zinc-200 text-left text-xs text-zinc-500 dark:border-zinc-700">
+                    <th className="px-3 py-2 font-medium">Día</th>
+                    <th className="px-3 py-2 text-right font-medium">Impr.</th>
+                    <th className="px-3 py-2 text-right font-medium">Modal</th>
+                    <th className="px-3 py-2 text-right font-medium">Clics</th>
+                    <th className="px-3 py-2 text-right font-medium">Cierres</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {days.map((d) => {
+                    const dayClicks =
+                      n(d.clickWhatsapp as number) +
+                      n(d.clickInstagram as number) +
+                      n(d.clickPhone as number) +
+                      n(d.clickOther as number);
+                    const dayCloses = n(d.bannerClose as number) + n(d.bannerCloseAfterModal as number);
+                    return (
+                      <tr key={d.date} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800">
+                        <td className="px-3 py-2 tabular-nums">{d.date}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{n(d.impression as number)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{n(d.modalOpen as number)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{dayClicks}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{dayCloses}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

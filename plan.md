@@ -703,3 +703,149 @@ aligned.
   reverse the slice — a one-line tweak in `FormDots`.
 - Client-only change; no Next.js API surface touched.
 
+---
+
+## 17. Ad Banner Stats Tracking
+
+### Context
+
+The ad banner (`components/ads/AdBanner.tsx`, shown on the home page to logged-in
+users) currently has **zero analytics**. We can't tell whether anyone sees it,
+opens the modal, clicks through to WhatsApp/Instagram/Phone, or just dismisses it.
+This adds a lightweight, per-campaign stats system so the admin can judge each
+banner's performance from `/admin/ad`.
+
+**Events tracked:**
+
+| Event | When it fires |
+|---|---|
+| `impression` | Banner is actually displayed (once per mount) |
+| `bannerClose` | × pressed **without** ever opening the modal |
+| `bannerCloseAfterModal` | × pressed **after** the modal was opened |
+| `modalOpen` | User clicks the banner image to open the modal |
+| `modalCloseNoClick` | Modal closed (×/backdrop/Esc) with no channel click |
+| `clickWhatsapp` / `clickInstagram` / `clickPhone` / `clickOther` | A link inside the modal is clicked, classified by `href` |
+
+Extras: **impressions**, **unique-user dedupe**, **per-day buckets**,
+**modal-closed-without-click**. Segmentation is **per banner version**.
+
+**Key constraints discovered:**
+- Viewers are authenticated (`AdBanner` is inside `ProtectedRoute`), so
+  `request.auth` is reliable.
+- `setAdBanner()` (`lib/firestore.ts`) does a full `setDoc` overwrite of
+  `config/adBanner` → **stats must live in a separate doc**, not on that doc.
+- Clients can't write under `config/` (rule `match /config/{doc}` is admin-only
+  write and doesn't even cover subcollections) → **writes go through a callable
+  Cloud Function** using the Admin SDK, exactly like `toggleBooster`.
+- Modal channel links are admin-authored HTML injected via
+  `dangerouslySetInnerHTML` → click tracking must use **event delegation**
+  (`e.target.closest('a')` + `href` inspection), not React handlers.
+
+### Data model
+
+Per-version stats doc (created/merged by the function):
+
+```
+config/adBanner/stats/{version}
+  impression, impressionUnique: number
+  bannerClose, bannerCloseAfterModal: number
+  modalOpen, modalOpenUnique: number
+  modalCloseNoClick: number
+  clickWhatsapp(+Unique), clickInstagram(+Unique), clickPhone(+Unique), clickOther: number
+  updatedAt: serverTimestamp
+```
+
+Per-day buckets (total counts only, no uniques, to stay lean):
+
+```
+config/adBanner/stats/{version}/days/{YYYY-MM-DD}   // day in America/Mexico_City
+  <event>: number ...
+  date: "YYYY-MM-DD"
+```
+
+**Unique counting** is client-deduped via `localStorage` (per device, per
+version, per event) — approximate but cheap and consistent with how dismissal
+already uses `localStorage`. The client sends `unique: true` only on the first
+occurrence of an event for that version; the function then also bumps
+`{event}Unique`.
+
+### Implementation
+
+**1. Cloud Function — `functions/src/logAdEvent.ts` (new)**
+- `onCall({ region: "us-central1" }, …)` mirroring `toggleBooster.ts`.
+- Require `request.auth?.uid` (throw `unauthenticated` otherwise).
+- Validate `event` against an allowlist (the table above); validate `version` is
+  a string; coerce `unique` to boolean.
+- Compute `day` in `America/Mexico_City` (reuse the `Intl.DateTimeFormat` `en-CA`
+  approach from `toggleBooster.ts`'s `kickoffDay`).
+- One `db.batch()` with two `set(ref, {…}, { merge: true })` calls using
+  `FieldValue.increment(1)`:
+  - `config/adBanner/stats/{version}`: `[event]` always; `[event+"Unique"]` only
+    when `unique`; `updatedAt`.
+  - `config/adBanner/stats/{version}/days/{day}`: `[event]` + `date`.
+- Export from `functions/src/index.ts` alongside the others.
+
+**2. Client helper — `lib/adStats.ts` (new)**
+- `const callLogAdEvent = httpsCallable(functions, "logAdEvent")` (same import
+  style as `lib/firestore.ts`).
+- `export function logAdEvent(event: AdEvent, version: string)`:
+  - Reads/writes `localStorage` key `adBanner.fired.{version}.{event}` to decide
+    `unique`.
+  - Fire-and-forget: `callLogAdEvent({ event, version, unique }).catch(() => {})`
+    — never block UI or throw.
+- Export an `AdEvent` union type for the allowlisted events.
+
+**3. `components/ads/AdBanner.tsx`**
+- Add refs: `impressionFired`, `openedModal`, `clickedInModal`.
+- Hoist visibility into a `visible` boolean so hooks stay above the early returns.
+  Add a local `track(event)` that **skips when previewing or admin**
+  (`banner.previewMode || isAdmin === true`) to avoid self-inflating stats, then
+  calls `logAdEvent`.
+- `useEffect` on `visible`: fire `impression` once via `impressionFired`.
+- Banner image `onClick`: set `openedModal.current = true`,
+  `clickedInModal.current = false`, `track("modalOpen")`, then `setOpen(true)`.
+- `dismiss()`: `track(openedModal.current ? "bannerCloseAfterModal" : "bannerClose")`.
+- Replace the three `setOpen(false)` sites (backdrop, × button, Esc) with a single
+  `closeModal()` that fires `modalCloseNoClick` when `!clickedInModal.current`.
+- Add `onClick` on the `.ad-modal-content` container: `closest('a')`, read `href`,
+  classify (`wa.me|whatsapp` → whatsapp, `instagram.com` → instagram, `^tel:` →
+  phone, else other), set `clickedInModal.current = true`, track it.
+
+**4. Read path for the admin UI**
+- `firestore.rules`: add
+  ```
+  match /config/adBanner/stats/{version} {
+    allow read: if request.auth != null && request.auth.token.admin == true;
+    allow write: if false;
+    match /days/{day} {
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if false;
+    }
+  }
+  ```
+  (stats not needed by end users → admin-only read; function-only write, like
+  `leaderboard`).
+- `lib/firestore.ts`: add `AdBannerStats` interface + `getAdBannerStats(version)`
+  and `getAdBannerStatsDays(version)` readers.
+- `hooks/useAdBannerStats.ts`: React Query hook keyed on the version.
+
+**5. Admin display — `app/admin/ad/page.tsx`**
+- Add an "Estadísticas" panel for the **current banner version**: raw counts +
+  derived rates (open rate = `modalOpen/impression`, CTR =
+  `(clickWA+IG+Phone)/impression`, modal abandon = `modalCloseNoClick/modalOpen`),
+  totals vs uniques, plus a compact per-day table from the `days` subcollection.
+
+### Verification
+1. `cd functions && npm run build` — type-check the new function.
+2. Run the app against the Firebase emulators (dev mode auto-connects, per
+   `lib/firebase.ts`). As a non-admin user on `/`:
+   - Confirm `impression` appears in `config/adBanner/stats/{version}` (emulator UI).
+   - Open modal → `modalOpen`; click WhatsApp/IG/Phone → matching `click*`; close
+     modal without clicking → `modalCloseNoClick`; dismiss before vs after opening
+     → `bannerClose` vs `bannerCloseAfterModal`.
+   - Verify `{event}Unique` increments only on first occurrence per device, and a
+     `days/{today}` doc accrues counts.
+3. As admin, confirm preview-mode views and admin views do **not** create events,
+   and that `/admin/ad` renders the stats panel with correct rates.
+4. Deploy: `firebase deploy --only functions:logAdEvent,firestore:rules`.
+

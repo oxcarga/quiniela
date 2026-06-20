@@ -68,6 +68,34 @@ export interface AdBanner {
   updatedAt: Timestamp;
 }
 
+// Per-version interaction counters, written only by the logAdEvent Cloud
+// Function. All fields are optional — a counter only exists once its event has
+// fired at least once.
+export interface AdBannerStats {
+  impression?: number;
+  impressionUnique?: number;
+  bannerClose?: number;
+  bannerCloseAfterModal?: number;
+  modalOpen?: number;
+  modalOpenUnique?: number;
+  modalCloseNoClick?: number;
+  clickWhatsapp?: number;
+  clickWhatsappUnique?: number;
+  clickInstagram?: number;
+  clickInstagramUnique?: number;
+  clickPhone?: number;
+  clickPhoneUnique?: number;
+  clickOther?: number;
+  updatedAt?: Timestamp;
+}
+
+// One doc per calendar day (America/Mexico_City) under a version's `days`
+// subcollection. Holds event totals only (no uniques).
+export interface AdBannerStatsDay {
+  date: string;
+  [event: string]: number | string;
+}
+
 export function getEffectiveStatus(match: Match): Match["status"] {
   if (match.status === "finished") return "finished";
   if (Date.now() >= match.kickoffAt.toMillis()) return "locked";
@@ -181,6 +209,26 @@ export async function setAdBanner(
     version: Date.now().toString(),
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function getAdBannerStats(
+  version: string
+): Promise<AdBannerStats | null> {
+  const snap = await getDoc(doc(db, "config", "adBanner", "stats", version));
+  if (!snap.exists()) return null;
+  return snap.data() as AdBannerStats;
+}
+
+export async function getAdBannerStatsDays(
+  version: string
+): Promise<AdBannerStatsDay[]> {
+  const snap = await getDocs(
+    query(
+      collection(db, "config", "adBanner", "stats", version, "days"),
+      orderBy("date")
+    )
+  );
+  return snap.docs.map((d) => d.data() as AdBannerStatsDay);
 }
 
 export async function getUsers(): Promise<LeaderboardEntry[]> {
