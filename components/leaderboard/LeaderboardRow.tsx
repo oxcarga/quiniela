@@ -7,11 +7,14 @@ import { useUserPredictions } from "@/hooks/usePredictions";
 interface Props {
   entry: LeaderboardEntry;
   isCurrentUser: boolean;
+  // Badge color classes for this row's tie group. Present only when the user's score
+  // is tied with another, so its presence also gates whether the exact count shows.
+  exactColorClass?: string;
 }
 
 const MEDAL: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
-export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
+export default function LeaderboardRow({ entry, isCurrentUser, exactColorClass }: Props) {
   const [clickedTimes, setClickedTimes] = useState(0);
   // Security rules only permit listing your own predictions, so the count is
   // only fetched for the current user's row.
@@ -61,6 +64,16 @@ export default function LeaderboardRow({ entry, isCurrentUser }: Props) {
         {entry.displayName}
         {isCurrentUser && <span className="ml-2 text-xs font-normal text-blue-500">(tú)</span>}
       </span>
+
+      {/* Exact-score count — only shown to break a visible tie, colored per tie group */}
+      {exactColorClass && (
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${exactColorClass}`}
+          title="Resultados exactos (desempate)"
+        >
+          🎯 {entry.exactCount}
+        </span>
+      )}
 
       {/* Score */}
       <span className="text-lg font-bold tabular-nums">{entry.totalScore}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Info } from "lucide-react";
 
 const RULES = [
@@ -12,6 +12,16 @@ const RULES = [
 
 export default function RulesModal() {
   const [open, setOpen] = useState(false);
+
+  // Lock background scroll while the modal is open.
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
 
   return (
     <>
@@ -29,7 +39,7 @@ export default function RulesModal() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900"
+            className="h-[80vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -80,6 +90,15 @@ export default function RulesModal() {
                 <li>• Solo puedes usarlo antes de que comience el partido</li>
                 <li>• Un refuerzo por día (basado en la hora de inicio del partido)</li>
               </ul>
+            </div>
+
+            <div className="mb-4 rounded-lg bg-sky-50 p-3 dark:bg-sky-950/30">
+              <h3 className="mb-2 flex items-center gap-2 font-semibold text-sky-900 dark:text-sky-200">
+                <span className="text-lg">🎯</span> Desempate
+              </h3>
+              <p className="text-xs text-sky-800 dark:text-sky-200">
+                Cuando dos o más jugadores tienen los mismos puntos, va primero quien tenga más marcadores exactos. Si el empate continúa, se ordenan alfabéticamente. En la tabla, las personas empatadas muestran un distintivo con su número de marcadores exactos (🎯).
+              </p>
             </div>
 
             <p className="text-xs text-zinc-500">

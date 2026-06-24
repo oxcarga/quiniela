@@ -49,6 +49,7 @@ export interface LeaderboardEntry {
   displayName: string;
   photoURL: string | null;
   totalScore: number;
+  exactCount: number;
   position: number;
   predictionsCount: number;
 }
@@ -240,6 +241,7 @@ export async function getUsers(): Promise<LeaderboardEntry[]> {
       displayName: u.displayName as string,
       photoURL: (u.photoURL as string | null) ?? null,
       totalScore: (u.totalScore as number) ?? 0,
+      exactCount: (u.exactCount as number) ?? 0,
       predictionsCount: (u.predictionsCount as number) ?? 0,
       position: i + 1,
     };
