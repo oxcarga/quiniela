@@ -24,6 +24,8 @@ function AdminContent() {
   const [selectedId, setSelectedId]     = useState("");
   const [homeGoals, setHomeGoals]       = useState(0);
   const [awayGoals, setAwayGoals]       = useState(0);
+  const [homePens, setHomePens]         = useState(0);
+  const [awayPens, setAwayPens]         = useState(0);
   const [matchEnded, setMatchEnded]     = useState(false);
   const [error, setError]               = useState<string | null>(null);
   const [submitting, setSubmitting]     = useState(false);
@@ -41,12 +43,17 @@ function AdminContent() {
 
   const allMatches = matches ?? [];
   const selected   = allMatches.find((m) => m.matchId === selectedId) ?? null;
+  // Knockout matches can be settled on penalties when level after regulation.
+  const isKnockout = selected != null && selected.phase !== "group";
+  const showPenalties = isKnockout && Number(homeGoals) === Number(awayGoals);
 
   function handleMatchChange(id: string) {
     const match = allMatches.find((m) => m.matchId === id) ?? null;
     setSelectedId(id);
     setHomeGoals(match?.result?.homeGoals ?? 0);
     setAwayGoals(match?.result?.awayGoals ?? 0);
+    setHomePens(match?.result?.homePenalties ?? 0);
+    setAwayPens(match?.result?.awayPenalties ?? 0);
     setError(null);
     setSuccessId(null);
   }
@@ -68,15 +75,28 @@ function AdminContent() {
       return;
     }
 
+    const shootout =
+      isKnockout && parsed.data.homeGoals === parsed.data.awayGoals;
+    let penalties: { home: number; away: number } | undefined;
+    if (shootout) {
+      penalties = { home: Number(homePens), away: Number(awayPens) };
+      if (penalties.home === penalties.away) {
+        setError("Los penales no pueden quedar empatados: debe haber un ganador.");
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
-      await setMatchResult(selectedId, parsed.data.homeGoals, parsed.data.awayGoals, matchEnded);
+      await setMatchResult(selectedId, parsed.data.homeGoals, parsed.data.awayGoals, matchEnded, penalties);
       // force sync the matches data
       queryClient.invalidateQueries({ queryKey: ["matches"] });
       setSuccessId(selectedId);
       setSelectedId("");
       setHomeGoals(0);
       setAwayGoals(0);
+      setHomePens(0);
+      setAwayPens(0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al guardar el resultado.");
     } finally {
@@ -175,6 +195,35 @@ function AdminContent() {
             </div>
           </div>
         )}
+
+        {/* Penalty shootout — knockout matches level after regulation */}
+        {showPenalties && (
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-6 py-4 dark:border-amber-900 dark:bg-amber-950/40">
+            <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+              Penales
+            </span>
+            <div className="flex items-center justify-center gap-6">
+              <Input
+                type="number" min={0}
+                value={homePens}
+                onChange={(e) => setHomePens(parseInt(e.target.value))}
+                disabled={submitting}
+                className="w-16 text-center text-2xl font-bold"
+                placeholder="0"
+              />
+              <span className="text-2xl font-semibold text-zinc-400">–</span>
+              <Input
+                type="number" min={0}
+                value={awayPens}
+                onChange={(e) => setAwayPens(parseInt(e.target.value))}
+                disabled={submitting}
+                className="w-16 text-center text-2xl font-bold"
+                placeholder="0"
+              />
+            </div>
+          </div>
+        )}
+
         <label htmlFor="game-finished" className="flex items-center gap-2 cursor-pointer select-none text-sm font-medium">
           <input 
             id="game-finished"

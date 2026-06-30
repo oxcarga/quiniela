@@ -30,6 +30,10 @@ export interface Match {
   result?: {
     homeGoals: number;
     awayGoals: number;
+    // Penalty-shootout scores — only present for knockout matches level after
+    // regulation. When set, they (not the goals) decide the winner.
+    homePenalties?: number;
+    awayPenalties?: number;
     winner?: "home" | "away" | "draw";
   };
 }
@@ -180,14 +184,44 @@ export async function setMatchResult(
   matchId: string,
   homeGoals: number,
   awayGoals: number,
-  matchEnded: boolean
+  matchEnded: boolean,
+  penalties?: { home: number; away: number }
 ): Promise<void> {
-  const winner =
-    homeGoals > awayGoals ? "home" : awayGoals > homeGoals ? "away" : "draw";
+  const result: NonNullable<Match["result"]> = {
+    homeGoals,
+    awayGoals,
+    winner:
+      penalties
+        ? penalties.home > penalties.away ? "home" : "away"
+        : homeGoals > awayGoals ? "home" : awayGoals > homeGoals ? "away" : "draw",
+  };
+  if (penalties) {
+    result.homePenalties = penalties.home;
+    result.awayPenalties = penalties.away;
+  }
   await updateDoc(doc(db, "matches", matchId), {
     status: matchEnded ? "finished" : "locked",
-    result: { homeGoals, awayGoals, winner },
+    result,
   });
+}
+
+/**
+ * Resolves who advances. Prefers penalty scores when present (knockout
+ * shootout), otherwise falls back to the stored/derived regulation winner.
+ * Returns null for matches without a result yet.
+ */
+export function getMatchWinner(
+  match: Match
+): "home" | "away" | "draw" | null {
+  const r = match.result;
+  if (!r) return null;
+  if (r.homePenalties != null && r.awayPenalties != null) {
+    return r.homePenalties > r.awayPenalties ? "home" : "away";
+  }
+  return (
+    r.winner ??
+    (r.homeGoals > r.awayGoals ? "home" : r.awayGoals > r.homeGoals ? "away" : "draw")
+  );
 }
 
 export async function getLeaderboard(): Promise<Leaderboard | null> {

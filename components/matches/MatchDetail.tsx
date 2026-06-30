@@ -5,7 +5,8 @@ import { useMatch } from "@/hooks/useMatches";
 import { useAuth } from "@/context/AuthContext";
 import { usePrediction } from "@/hooks/usePredictions";
 import PredictionForm from "./PredictionForm";
-import type { Match } from "@/lib/firestore";
+import ScoreLine from "./ScoreLine";
+import { getMatchWinner, type Match } from "@/lib/firestore";
 import { Flag } from "@/components/Flag";
 
 const PHASE_LABEL: Record<Match["phase"], string> = {
@@ -33,6 +34,9 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
   if (error || !match) return <p className="text-center text-sm text-red-500">Partido no encontrado.</p>;
 
   const badge = STATUS_BADGE[match.status];
+  const decidedByPens =
+    match.result?.homePenalties != null && match.result?.awayPenalties != null;
+  const penaltyWinner = decidedByPens ? getMatchWinner(match) : null;
   const kickoffFormatted = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
     month:   "long",
@@ -60,13 +64,13 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
       <div className="flex items-center justify-center gap-6">
         <div className="flex w-28 flex-col items-center gap-1">
           <Flag emoji={match.homeFlag} />
-          <span className="text-center font-semibold">{match.homeTeam}</span>
+          <span className={`text-center ${penaltyWinner === "home" ? "font-bold text-green-700 dark:text-green-400" : penaltyWinner === "away" ? "font-semibold text-zinc-400" : "font-semibold"}`}>
+            {match.homeTeam}{penaltyWinner === "home" && " ▸"}
+          </span>
         </div>
         <div className="flex flex-col items-center gap-1">
           {match.status !== "upcoming" ? (
-            <span className="text-4xl font-bold tabular-nums">
-              {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals || 0}
-            </span>
+            <ScoreLine match={match} className="text-4xl font-bold" />
           ) : (
             <span className="text-2xl font-semibold text-zinc-400">vs</span>
           )}
@@ -76,7 +80,9 @@ export default function MatchDetail({ matchId }: { matchId: string }) {
         </div>
         <div className="flex w-28 flex-col items-center gap-1">
           <Flag emoji={match.awayFlag} />
-          <span className="text-center font-semibold">{match.awayTeam}</span>
+          <span className={`text-center ${penaltyWinner === "away" ? "font-bold text-green-700 dark:text-green-400" : penaltyWinner === "home" ? "font-semibold text-zinc-400" : "font-semibold"}`}>
+            {penaltyWinner === "away" && "◂ "}{match.awayTeam}
+          </span>
         </div>
       </div>
 

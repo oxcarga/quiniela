@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { getEffectiveStatus, type Match, type Prediction } from "@/lib/firestore";
+import { getEffectiveStatus, getMatchWinner, type Match, type Prediction } from "@/lib/firestore";
 import { useSetPrediction, useToggleBooster } from "@/hooks/usePredictions";
 import rankingsByName from "@/data/fifa_world_ranking_men_by_name.json";
 import FormDots from "./FormDots";
+import ScoreLine from "./ScoreLine";
 import { Flag } from "@/components/Flag";
 
 const STATUS_BADGE: Record<Match["status"], { label: string; className: string }> = {
@@ -25,6 +26,10 @@ interface Props {
 export default function MatchCard({ match, prediction, highlighted = false, userId }: Props) {
   const effectiveStatus = getEffectiveStatus(match);
   const badge = STATUS_BADGE[effectiveStatus];
+  // Only emphasise an advancing team when the tie was settled on penalties.
+  const decidedByPens =
+    match.result?.homePenalties != null && match.result?.awayPenalties != null;
+  const penaltyWinner = decidedByPens ? getMatchWinner(match) : null;
   const kickoffFormatted = new Intl.DateTimeFormat(undefined, {
     month: "short",
     day: "numeric",
@@ -133,7 +138,9 @@ export default function MatchCard({ match, prediction, highlighted = false, user
         <div className="flex items-center justify-between px-0 py-3 gap-2">
           <div className="relative flex w-28 flex-col items-center gap-1">
             <Flag emoji={match.homeFlag} />
-            <span className="text-center text-sm font-medium leading-tight">{match.homeTeam}</span>
+            <span className={`text-center text-sm leading-tight ${penaltyWinner === "home" ? "font-bold text-green-700 dark:text-green-400" : penaltyWinner === "away" ? "font-medium text-zinc-400" : "font-medium"}`}>
+              {match.homeTeam}{penaltyWinner === "home" && " ▸"}
+            </span>
             {rankingsByName[match.homeTeam as keyof typeof rankingsByName] && (
               <span className="text-xs text-zinc-400">
                 #{rankingsByName[match.homeTeam as keyof typeof rankingsByName].ranking}
@@ -145,9 +152,7 @@ export default function MatchCard({ match, prediction, highlighted = false, user
           <div className="flex flex-col items-center gap-1">
             {/* match is "finished" OR "locked" */}
             {match.status !== "upcoming" ? (
-              <span className="text-xl font-bold tabular-nums">
-                {match?.result?.homeGoals ?? 0} – {match?.result?.awayGoals ?? 0}
-              </span>
+              <ScoreLine match={match} className="text-xl font-bold" />
             ) : (
               <span className="text-lg font-semibold text-zinc-400">vs</span>
             )}
@@ -158,7 +163,9 @@ export default function MatchCard({ match, prediction, highlighted = false, user
 
           <div className="relative flex w-28 flex-col items-center gap-1">
             <Flag emoji={match.awayFlag} />
-            <span className="text-center text-sm font-medium leading-tight">{match.awayTeam}</span>
+            <span className={`text-center text-sm leading-tight ${penaltyWinner === "away" ? "font-bold text-green-700 dark:text-green-400" : penaltyWinner === "home" ? "font-medium text-zinc-400" : "font-medium"}`}>
+              {penaltyWinner === "away" && "◂ "}{match.awayTeam}
+            </span>
             {rankingsByName[match.awayTeam as keyof typeof rankingsByName] && (
               <span className="text-xs text-zinc-400">
                 #{rankingsByName[match.awayTeam as keyof typeof rankingsByName].ranking}
