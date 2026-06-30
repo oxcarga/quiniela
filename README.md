@@ -56,6 +56,39 @@ FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/seed-matches.ts
 FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/seed-rankings.ts
 ```
 
+## Resolving the knockout bracket
+
+Knockout matches are seeded with placeholder names (`2nd Group A`, `Best 3rd (A/B/C/D/F)`,
+`Winner Match 73`). They must be resolved to real teams once each round's participants are known.
+
+For the **Round of 32**, use `scripts/resolve-round-of-32.ts`. Edit the two config blocks at the
+top of the file:
+
+1. **`STANDINGS`** — the final 1st/2nd/3rd/4th team for each group (Spanish names matching `FLAG_MAP`).
+2. **`BEST_THIRDS`** — for each of the 8 `Best 3rd (...)` matches, the group letter whose 3rd-place
+   team fills that slot, **read off FIFA's published bracket** (see note below).
+
+```bash
+# Preview only — prints the resolved bracket, writes nothing (default):
+npx tsx scripts/resolve-round-of-32.ts
+
+# Commit (emulator):
+FIRESTORE_EMULATOR_HOST=localhost:8080 npx tsx scripts/resolve-round-of-32.ts --commit
+
+# Commit (production):
+GOOGLE_APPLICATION_CREDENTIALS=./functions/service-account.json \
+  npx tsx scripts/resolve-round-of-32.ts --commit
+```
+
+The script validates before writing (every best-3rd letter must be within that slot's allowed
+list, no group used twice, all names in `FLAG_MAP`) and aborts on any problem.
+
+> **Why `BEST_THIRDS` is manual:** the 8 best third-placed teams advance, but *which* group's
+> third lands in *which* slot is decided by FIFA's pre-published 495-row combination table, not by
+> a formula — the fixtures' `(A/B/C/D/F)` lists only bound the possibilities and don't uniquely
+> determine the assignment. See [`RONDA_32_READINESS.md`](./RONDA_32_READINESS.md) for the full
+> explanation. Later rounds (`Winner Match NN`) are not yet automated.
+
 ## Granting admin access
 
 ```bash
