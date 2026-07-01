@@ -76,7 +76,7 @@ function AdminContent() {
     }
 
     const shootout =
-      isKnockout && parsed.data.homeGoals === parsed.data.awayGoals;
+      isKnockout && matchEnded && parsed.data.homeGoals === parsed.data.awayGoals;
     let penalties: { home: number; away: number } | undefined;
     if (shootout) {
       penalties = { home: Number(homePens), away: Number(awayPens) };
