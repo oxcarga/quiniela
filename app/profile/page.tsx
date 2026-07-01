@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { X } from "lucide-react";
+import { Info, X } from "lucide-react";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPredictions, useMultiUserPredictionsForMatches } from "@/hooks/usePredictions";
@@ -280,6 +280,61 @@ function RankingDropdown({
   );
 }
 
+function StatTile({
+  label,
+  value,
+  info,
+  align = "center",
+  corner = "",
+}: {
+  label: string;
+  value: string;
+  info?: string;
+  align?: "left" | "center" | "right";
+  corner?: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Anchor the tooltip inward on edge columns so it doesn't overflow the screen.
+  const tooltipPosition =
+    align === "left"
+      ? "left-0"
+      : align === "right"
+        ? "right-0"
+        : "left-1/2 -translate-x-1/2";
+
+  return (
+    <div className={`relative flex flex-col items-center bg-white px-2 py-4 dark:bg-zinc-900 ${corner}`}>
+      <span className="text-2xl font-bold tabular-nums">{value}</span>
+      <span className="flex items-center gap-1 text-center text-xs text-zinc-500">
+        {label}
+        {info && (
+          <button
+            type="button"
+            aria-label={`¿Qué es "${label}"?`}
+            onClick={() => setOpen((o) => !o)}
+            className="cursor-pointer text-zinc-400 transition-colors hover:text-zinc-700 dark:hover:text-zinc-200"
+          >
+            <Info className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </span>
+
+      {info && open && (
+        <>
+          {/* Click-away overlay closes the tooltip */}
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div
+            className={`absolute top-full z-30 mb-1 w-52 rounded-lg border border-zinc-200 bg-white p-2.5 text-left text-xs font-normal leading-snug text-zinc-600 shadow-lg dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 ${tooltipPosition}`}
+          >
+            {info}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function ProfileContent() {
   const { user, signOut, setDisplayName } = useAuth();
   const { data: predictions, isLoading: loadingPreds } = useUserPredictions(
@@ -364,6 +419,81 @@ function ProfileContent() {
   const predicted = (predictions ?? []).length;
   const scored = (predictions ?? []).filter((p) => p.pointsEarned !== null).length;
 
+  // Played predictions (match finished with a result), ordered by kickoff so we
+  // can measure streaks. Everything below is derived, not read from Firestore.
+  const playedRows = (predictions ?? [])
+    .map((p) => ({ prediction: p, match: matchMap.get(p.matchId) }))
+    .filter((r): r is { prediction: Prediction; match: Match } =>
+      !!r.match &&
+      getEffectiveStatus(r.match) === "finished" &&
+      !!r.match.result &&
+      r.prediction.pointsEarned !== null
+    )
+    .sort((a, b) => a.match.kickoffAt.toMillis() - b.match.kickoffAt.toMillis());
+
+  const exactScores = playedRows.filter(
+    ({ prediction, match }) =>
+      prediction.predictedHomeGoals === match.result!.homeGoals &&
+      prediction.predictedAwayGoals === match.result!.awayGoals
+  ).length;
+
+  const correctOutcomes = playedRows.filter(
+    ({ prediction }) => (prediction.pointsEarned ?? 0) > 0
+  ).length;
+
+  const hitRate = scored > 0 ? Math.round((correctOutcomes / scored) * 100) : 0;
+  const avgPoints = scored > 0 ? totalEarned / scored : 0;
+
+  // Longest run of consecutive scoring predictions (by kickoff order).
+  let bestStreak = 0;
+  let currentRun = 0;
+  for (const { prediction } of playedRows) {
+    if ((prediction.pointsEarned ?? 0) > 0) {
+      currentRun += 1;
+      bestStreak = Math.max(bestStreak, currentRun);
+    } else {
+      currentRun = 0;
+    }
+  }
+
+  const boostsUsed = playedRows.filter(({ prediction }) => prediction.boosted).length;
+  const boostsHit = playedRows.filter(
+    ({ prediction }) => prediction.boosted && (prediction.pointsEarned ?? 0) > 0
+  ).length;
+
+  const stats: Array<{ label: string; value: string; info?: string }> = [
+    {
+      label: "puntos totales",
+      value: String(totalEarned),
+      info: "Todos los puntos que has ganado. Cada partido da 3 puntos por resultado exacto, 2 por acertar un empate y 1 por acertar el ganador. Los refuerzos (⚡) duplican los puntos de ese partido.",
+    },
+    {
+      label: "aciertos exactos",
+      value: String(exactScores),
+      info: "Partidos en los que acertaste el marcador exacto (goles de local y visitante). Es el criterio de desempate en la clasificación cuando dos usuarios tienen los mismos puntos.",
+    },
+    {
+      label: "% de acierto",
+      value: `${hitRate}%`,
+      info: "Porcentaje de partidos jugados en los que ganaste al menos 1 punto (acertaste el ganador, el empate o el marcador exacto).",
+    },
+    {
+      label: "media de puntos",
+      value: avgPoints.toFixed(1),
+      info: "Promedio de puntos que ganas por partido jugado (puntos totales ÷ partidos jugados). Sirve para comparar tu rendimiento con quien ha jugado más o menos partidos que tú.",
+    },
+    {
+      label: "mejor racha",
+      value: String(bestStreak),
+      info: "La mayor cantidad de partidos seguidos (por orden de inicio) en los que ganaste al menos 1 punto.",
+    },
+    {
+      label: "refuerzos acertados",
+      value: boostsUsed > 0 ? `${boostsHit}/${boostsUsed}` : "—",
+      info: "Refuerzos (⚡) que dieron puntos frente al total de refuerzos que usaste. Un refuerzo duplica los puntos de ese partido, así que conviene usarlo donde más aciertas.",
+    },
+  ];
+
   const initials = (user?.displayName ?? "?")
     .split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -429,23 +559,36 @@ function ProfileContent() {
         </button>
       </div>
 
-      {/* Stats bar */}
-      <div className="mb-6 flex gap-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="flex flex-1 flex-col items-center">
-          <span className="text-2xl font-bold">{totalEarned}</span>
-          <span className="text-xs text-zinc-500">puntos totales</span>
-        </div>
-        <div className="w-px bg-zinc-200 dark:bg-zinc-700" />
-        <div className="flex flex-1 flex-col items-center">
-          <span className="text-2xl font-bold">{predicted}</span>
-          <span className="text-xs text-zinc-500">predicciones</span>
-        </div>
-        <div className="w-px bg-zinc-200 dark:bg-zinc-700" />
-        <div className="flex flex-1 flex-col items-center">
-          <span className="text-2xl font-bold">{scored}</span>
-          <span className="text-xs text-zinc-500">partidos jugados</span>
-        </div>
+      {/* Stats grid. No `overflow-hidden` here so tooltips can escape — the four
+          corner cells round themselves to keep the outer rounded-xl shape. */}
+      <div className="mb-2 grid grid-cols-3 gap-px rounded-xl border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800">
+        {stats.map((s, i) => {
+          const cols = 3;
+          const lastRowStart = Math.floor((stats.length - 1) / cols) * cols;
+          const corner = [
+            i === 0 && "rounded-tl-xl",
+            i === cols - 1 && "rounded-tr-xl",
+            i === lastRowStart && "rounded-bl-xl",
+            i === stats.length - 1 && "rounded-br-xl",
+          ]
+            .filter(Boolean)
+            .join(" ");
+          return (
+            <StatTile
+              key={s.label}
+              label={s.label}
+              value={s.value}
+              info={s.info}
+              // 3-column grid: anchor edge columns' tooltips inward.
+              align={i % cols === 0 ? "left" : i % cols === 2 ? "right" : "center"}
+              corner={corner}
+            />
+          );
+        })}
       </div>
+      <p className="mb-6 text-center text-xs text-zinc-400">
+        {predicted} predicciones · {scored} partidos jugados
+      </p>
 
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
