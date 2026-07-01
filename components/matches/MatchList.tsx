@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMatches } from "@/hooks/useMatches";
 import { useUserPredictions } from "@/hooks/usePredictions";
 import { useAuth } from "@/context/AuthContext";
 import { useAppStore } from "@/store/useAppStore";
 import MatchCard from "./MatchCard";
 import { getEffectiveStatus, type Match } from "@/lib/firestore";
+import { PHASE_ORDER, getCurrentPhase } from "@/lib/tournament";
 import { ListFilter } from "lucide-react";
-
-const PHASE_ORDER: Match["phase"][] = [
-  "group", "round_of_32", "round_of_16", "quarter", "semi", "third_place", "final",
-];
 
 const PHASE_LABEL: Record<Match["phase"], string> = {
   group:        "Fase de Grupos",
@@ -53,8 +50,13 @@ const PREDICTION_FILTERS: Array<{ value: PredictionFilter; label: string }> = [
 
 export default function MatchList() {
   const { user } = useAuth();
-  const { matchPhaseFilter, setMatchPhaseFilter } = useAppStore();
-  const { data: matches, isLoading, error } = useMatches(matchPhaseFilter ?? undefined);
+  const { matchPhaseFilter, phaseFilterAuto, setMatchPhaseFilter } = useAppStore();
+  // Fetch all matches; phase is filtered client-side so we always know the
+  // tournament's current stage (and switching phases needs no refetch).
+  const { data: matches, isLoading, error } = useMatches();
+  const currentPhase = useMemo(() => getCurrentPhase(matches ?? []), [matches]);
+  // In auto mode the list follows the current stage; otherwise the user's pick.
+  const effectivePhase = phaseFilterAuto ? currentPhase : matchPhaseFilter;
   const { data: predictions } = useUserPredictions(user?.uid ?? null);
   const [highlightedMatchId, setHighlightedMatchId] = useState<string | null>(null);
   const [predictionFilter, setPredictionFilter] = useState<PredictionFilter>("all");
@@ -83,6 +85,7 @@ export default function MatchList() {
   );
 
   const filteredMatches = (matches ?? []).filter((m) => {
+    if (effectivePhase && m.phase !== effectivePhase) return false;
     if (statusFilter !== "all" && getEffectiveStatus(m) !== statusFilter) return false;
     if (predictionFilter === "predicted") return predictionByMatchId.has(m.matchId);
     if (predictionFilter === "unpredicted") return !predictionByMatchId.has(m.matchId);
@@ -109,7 +112,7 @@ export default function MatchList() {
               key={String(f.value)}
               onClick={() => setMatchPhaseFilter(f.value)}
               className={`cursor-pointer rounded-full px-3 py-1 text-sm font-medium transition ${
-                matchPhaseFilter === f.value
+                effectivePhase === f.value
                   ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                   : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
               }`}
@@ -184,7 +187,7 @@ export default function MatchList() {
       >
         {PHASE_ORDER.filter((p) => grouped[p]?.length).map((phase) => (
           <section key={phase}>
-            {!matchPhaseFilter && (
+            {!effectivePhase && (
               <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 {PHASE_LABEL[phase]}
               </h2>
