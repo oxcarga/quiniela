@@ -12,7 +12,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>()((set) => ({
-  matchPhaseFilter: null,
+  matchPhaseFilter: "round_of_32",
   setMatchPhaseFilter: (phase) => set({ matchPhaseFilter: phase }),
 
   selectedMatchId: null,

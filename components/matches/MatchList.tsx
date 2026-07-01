@@ -119,8 +119,8 @@ export default function MatchList() {
           ))}
         </div>
 
-
-        <div className="w-full flex flex-wrap justify-end items-center gap-2">
+        
+        {/* <div className="w-full flex flex-wrap justify-end items-center gap-2">
           <button
             onClick={toggleFilters}
             aria-pressed={filtersVisible}
@@ -133,10 +133,10 @@ export default function MatchList() {
           >
             <ListFilter className="h-4 w-4" />
           </button>
-        </div>
+        </div> */}
 
         {/* Status + prediction filter pills */}
-        <div className={`w-full flex flex-wrap justify-end items-center gap-2 ${!filtersVisible ? "hidden" : ""}`}>
+        <div className={`w-full flex flex-wrap justify-start items-center gap-2 mt-5 ${!filtersVisible ? "hidden__" : ""}`}>
           {/* Status filter pill */}
           <div className="inline-flex rounded-full border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
             {STATUS_FILTERS.map((s) => (
@@ -156,7 +156,7 @@ export default function MatchList() {
         </div>
 
         {/* Prediction filter pill */}
-        <div className={`w-full flex flex-wrap justify-end items-center gap-2 ${!filtersVisible ? "hidden" : ""}`}>
+        <div className={`w-full flex flex-wrap justify-start items-center gap-2 mb-5 ${!filtersVisible ? "hidden__" : ""}`}>
           <div className="inline-flex rounded-full border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800">
             {PREDICTION_FILTERS.map((p) => (
               <button
